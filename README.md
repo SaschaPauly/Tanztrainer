@@ -1,6 +1,6 @@
 # Karnevals-Showtanz – Codex-Übergabe (Version 12)
 
-**Status:** Unveränderte V12-Funktionalität, lediglich in `index.html`, `src/styles.css` und `src/app.js` aufgeteilt. **Keine Android-Korrektur oder neue Funktion wurde bereits implementiert oder auf einem Android-Gerät getestet.**
+**Status:** V12-Funktionen mit ergänztem unabhängigem Kamera-Schnelltest und lokaler Kameradiagnose. Pose-Erkennung, Bewertung und Trainingsablauf sind unverändert. Automatisierte Desktop-Browsertests bestehen; **die Android-Geräteabnahme steht aus** (siehe `docs/TEST_RESULTS.md`).
 
 ## Start
 
@@ -8,14 +8,18 @@
 - Für den Kameratest auf Android: **HTTPS-Deployment** verwenden, z. B. Vercel. `http://192.168.x.x:8000` ist auf Android normalerweise **kein** sicherer Browserkontext für `getUserMedia`.
 - `index.html` als statische Seite veröffentlichen; keine Build-Pipeline erforderlich.
 - Im Android-Gerät die HTTPS-Seite **direkt in Chrome** öffnen, nicht in WhatsApp-/Messenger-In-App-Browsern. Website-Berechtigung für Kamera und Android-App-Berechtigung für Chrome prüfen.
+- Zuerst `Kamera testen (bevorzugt vorne)` ausführen. Rohvorschau und Diagnose funktionieren ohne Modell oder Video. Bei Kamera-/Auflösungsproblemen kann `Ohne Kameravorgabe testen` ausdrücklich gewählt werden; es gibt keine automatischen Berechtigungsversuche. `Test stoppen & Kamera ausschalten` beendet auch ausstehende Startversuche.
 - Nach `Erkennung laden` ein lokales Referenzvideo über Dateiauswahl importieren. Das erwähnte `Showtanz_WhatsApp.mp4` liegt **nicht** bei und muss vom Nutzer selbst bereitgestellt werden.
 - MediaPipe-Modul und Pose-Modell werden aus jsDelivr/Google geladen. Daher ist die Anwendung nicht vollständig offline.
 
 ## Projektstruktur
 
-- `index.html`: UI/DOM, unveränderte V12-Markupstruktur.
-- `src/styles.css`: bisheriger Inline-CSS-Code.
-- `src/app.js`: bisheriger Inline-JavaScript-Code (nicht refaktoriert).
+- `index.html`: V12-Oberfläche mit zusätzlichem Kamera-Test- und Diagnosebereich.
+- `src/styles.css`: Gestaltung der V12-Oberfläche und Kameradiagnose.
+- `src/app.js`: V12-Anwendungslogik mit Anbindung an die Kamerasteuerung.
+- `src/camera.js`: Kamerastart, Rohvorschau, Fehlerbehandlung und lokale Diagnose.
+- `tests/test_camera.py`: automatisierte Chromium-Kamera- und V12-Regressionstests.
+- `docs/TEST_RESULTS.md`: Testergebnisse und ausdrücklich offene Geräteprüfungen.
 - `original/Tanztrainer V 12.html`: unveränderte Ausgangsdatei zur Regression.
 - `AGENTS.md`: verbindlicher Codex-Arbeitsauftrag.
 - `docs/IMPLEMENTATION_PLAN.md`: technische Phasen und konkrete Akzeptanzkriterien.
@@ -37,3 +41,21 @@ Kamera- und Videobilder werden in der bestehenden Implementierung im Browser ver
 ## Auftrag an Codex
 
 Lies zuerst `AGENTS.md`, danach `docs/IMPLEMENTATION_PLAN.md`. Beginne mit Phase 0/1 (Android-Kamerazugriff), führe nachvollziehbare Tests durch und dokumentiere Browser-/Gerätegrenzen. Keine unbestätigten Erfolgsmeldungen.
+
+## Automatisierte Tests
+
+Die Anwendung selbst benötigt keine Paketinstallation. Für die Browsertests werden Python, Playwright und Chromium benötigt:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r tests/requirements.txt
+CHROMIUM_PATH=/usr/bin/chromium .venv/bin/python -m unittest discover -s tests -v
+node --check src/camera.js
+node --check src/app.js
+```
+
+`CHROMIUM_PATH` auf den lokalen Chromium-Pfad setzen. Die Tests starten ihren eigenen lokalen Webserver und verwenden ausschließlich eine simulierte Kamera und synthetische Videos. Externe Downloads sind gesperrt; ein Test ersetzt das Pose-Modell gezielt, um Trainingsstart und Aufnahme zu prüfen. Damit werden keine echte Pose-Erkennung, Android-Hardware oder Audio-Synchronität nachgewiesen.
+
+## Statisches HTTPS-Deployment mit Vercel
+
+Repository in Vercel importieren, Framework-Preset **Other**, Repository-Wurzel als Root Directory, keinen Build-Befehl und `.` als Output Directory wählen. `index.html` und der gesamte Ordner `src/` müssen gemeinsam bereitgestellt werden. Für Tests eines Pull Requests ein Preview-Deployment verwenden; diese Änderung führt selbst kein Deployment oder Merge aus. Die erzeugte HTTPS-Adresse direkt in Chrome auf Android öffnen und `docs/ANDROID_TESTPLAN.md` abarbeiten. Es sind keine Anwendungs-Secrets erforderlich; eine Vercel-Verknüpfung muss über das eigene Konto erfolgen.
