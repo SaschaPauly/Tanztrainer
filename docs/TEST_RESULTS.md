@@ -1,3 +1,31 @@
+# Autozoom: Teststatus – 2026-11-02
+
+Kandidat für v1.1.0, keine Veröffentlichung. Vorhandene Kameradiagnose-/Baseline-Änderungen sind enthalten; echte Android-Abnahme bleibt offen. Der aktuelle Entwicklungsauftrag autorisiert dieses isolierte Zoom-Inkrement trotz der noch offenen Geräteabnahme der früheren Roadmap.
+
+## Automatisierte Zoom-Prüfungen
+
+Linux, Chromium über Playwright mit simulierter Kamera; keine externen Modellanfragen in der Testsuite. Synthetische MP4-Clips werden mit FFmpeg erzeugt, MediaPipe wird gezielt durch synthetische Pose-Ergebnisse ersetzt. Kein Android-Gerät, kein echtes Tanzvideo verfügbar.
+
+- **13 bestehende Chromium-Kamera-/V12-Regressionstests bestanden**, einschließlich Import, Effekten, Training, Countdown und beider Aufnahmen.
+- **6 neue Chromium-Zoomtests bestanden**: unveränderlicher Rahmen während Wiedergabe und gesperrte Auswahl; Cache bei erneutem Import und Einschalten; gespeicherte Einstellung nach Reload; Hochformat und unvollständige Füße; fehlende Person; Überspringen, Abbruch und Timeout; Inhaltsfingerabdruck bei gleichen Dateinamen und Größen; gesperrtes Schreiben in localStorage; adaptive Zwischenproben über die gesamte Videodauer und gleichzeitig aktive simulierte Kamera.
+- **4 Node-Geometrietests bestanden**: fünf Quellauflösungen (einschließlich 4K und Hochformat) × vier Zielformate, vollständiger Einschluss der gepolsterten Bewegungsvereinigung; seitliche/weite Armbewegungen; unterschiedliche Körpergrößen/Kameraabstände; fehlende, niedrige Confidence, NaN, außerhalb liegende und degenerierte Posen; Bildrandreserven und deterministische Berechnung.
+- JavaScript-Syntax, Python-Testsyntax und `git diff --check` bestanden.
+
+```sh
+python -m unittest discover -s tests -v
+node tests/zoom.test.cjs
+node --check src/camera.js
+node --check src/app.js
+node --check src/zoom.js
+git diff --check
+```
+
+Der lokale HTTP-Testserver und Chromium benötigen in der Ausführungsumgebung Socket-/Browserfreigabe außerhalb der Standardsandbox. Die Suite führt keine Uploads durch. FFmpeg ist ausschließlich Testwerkzeug, keine Browserabhängigkeit.
+
+Die Tests prüfen die Ausschnittgeometrie und Ablaufverdrahtung mit bekannten Posen, **keine garantierte Ganzkörpersichtbarkeit bei echter Pose-Erkennung**. Noch offen: reale Modell-/WASM-Laufzeit, Spitzen-Speicher und Analysezeit auf Galaxy S24+, schnelle Zwischenbewegungen, Drehungen/Kostüme/Verdeckungen, Android-Kamera parallel zur Inferenz, Musik-Synchronität und reale Aufnahmen über GitHub Pages HTTPS. Manuelle Schritte in `docs/ANDROID_TESTPLAN.md`, technische Grenzen in `docs/AUTOMATIC_VIDEO_ZOOM.md`. Der bisherige Testbericht folgt als historische Baseline.
+
+---
+
 # Kameradiagnose: Analyse und Teststatus
 
 Stand: 2026-10-29. Dieses Inkrement betrifft den Kamerazugriff; Phase 1 ist noch nicht vollständig abgenommen.

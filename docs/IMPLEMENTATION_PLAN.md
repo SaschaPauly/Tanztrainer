@@ -49,3 +49,8 @@
 ## Reihenfolge für Codex
 
 **Jetzt implementieren: Phase 0 und Phase 1.** Anschließend Phase 2. Phasen 3–5 erst nach dokumentiert funktionierendem Android-Kamerazugriff und bestätigter Baseline. Bei blockierter Hardware-/Browserprüfung konkrete manuelle Prüfschritte liefern statt Tests zu erfinden.
+
+
+## Separater Entwicklungsauftrag: statischer Autozoom (2026-11-02)
+
+Der explizite aktuelle Auftrag ergänzt den bestehenden Kamera-/Baseline-Stand um ein isoliertes Zoom-Inkrement. Er führt kein Multi-Personen-Tracking, keine PWA, keine neue Timingbewertung und keine dynamische Kameraführung ein. Details: `docs/AUTOMATIC_VIDEO_ZOOM.md`. Phase 0/1 bleiben bezüglich echter Android-Hardware unbestätigt; die hier ergänzten Desktop-Tests ersetzen diese Abnahme nicht. Ziel ist ein PR gegen main zur manuellen Prüfung, keine automatische Veröffentlichung, kein Tag/Release.

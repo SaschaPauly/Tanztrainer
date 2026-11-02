@@ -1,5 +1,13 @@
 # Änderungsprotokoll
 
+## v1.1.0 vorgesehen – Automatischer Videozoom – 2026-11-02
+- Lokale Voranalyse des vollständigen gewählten Referenzbereichs mit vorhandenem MediaPipe-Modell, zeitlicher und adaptiver Abtastung, Konfidenz-/Plausibilitätsprüfungen und Sicherheitsreserven.
+- Konstanter, fensterabhängiger Ausschnitt für Trainingsansicht und Splitbild-Aufnahme; keine dynamische Nachführung. Haltungsbewertung und ursprünglicher Analysebereich bleiben erhalten.
+- Standardmäßig aktivierter Schalter, lokal gespeicherte Wahl, inhaltsbasierter Cache, Statusanzeige und manueller Fallback. Countdown startet erst nach abgeschlossenem Ergebnis oder sicherem Fallback.
+- Ressourcenlimits, Abbruch und Decoderfreigabe; Kameravorschau bleibt verfügbar, parallele Hintergrundmasken-Inferenz wird vermieden.
+- Keine neuen Laufzeitabhängigkeiten, Uploads, Releases, Tags, Merges oder Veröffentlichungen. Automatisierte Testdetails und offene Android-Geräteabnahme siehe docs/TEST_RESULTS.md.
+
+
 ## Kameradiagnose – 2026-10-29
 - Unabhängiger Rohkamera-Test ohne Referenzvideo oder Pose-Modell; expliziter Fallback ohne Kamera-/Auflösungsvorgabe.
 - Lokale Diagnose für sicheren Kontext, Browserhinweise, Kamera-APIs, Berechtigung, Geräteanzahl nach Freigabe, Auflösung und Track-Zustand.
