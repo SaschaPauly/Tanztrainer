@@ -1,6 +1,12 @@
 # Karnevals-Showtanz – Codex-Übergabe (Version 12)
 
-**Status:** V12-Funktionen mit ergänztem unabhängigem Kamera-Schnelltest und lokaler Kameradiagnose. Pose-Erkennung, Bewertung und Trainingsablauf sind unverändert. Automatisierte Desktop-Browsertests bestehen; **die Android-Geräteabnahme steht aus** (siehe `docs/TEST_RESULTS.md`).
+**Status:** Autozoom als Kandidat für v1.1.0 (noch keine Veröffentlichung). V12-Funktionen mit ergänztem unabhängigem Kamera-Schnelltest und lokaler Kameradiagnose. Die vorhandene Pose-Erkennung wird zusätzlich für eine statische Video-Voranalyse verwendet; Haltungsbewertung und Countdown bleiben erhalten. Automatisierte Desktop-Browsertests bestehen; **die Android-Geräteabnahme steht aus** (siehe `docs/TEST_RESULTS.md`).
+
+## Automatischer Videozoom
+
+Standardmäßig aktiv. Nach Videoimport und Laden der Erkennung wird der Bewegungsbereich vor dem Training lokal analysiert. Der Ausschnitt bleibt während des Trainings konstant. Bei unsicherer Erkennung bleibt die bisherige Darstellung erhalten; eine laufende Analyse lässt sich überspringen. Die Einstellung und bis zu 20 Ergebnisse werden nach Möglichkeit lokal gespeichert. Rechte Bildhälfte und ganzes Bild werden getrennt analysiert.
+
+Verfahren, Grenzen, Formeln, Cache, Leistung und Android-Abnahme: [Autozoom-Dokumentation](docs/AUTOMATIC_VIDEO_ZOOM.md). Schnelle Bewegungen zwischen Stichproben können trotz Sicherheitsreserve übersehen werden; bei problematischen Clips Zoom ausschalten.
 
 ## Start
 
@@ -17,6 +23,7 @@
 - `index.html`: V12-Oberfläche mit zusätzlichem Kamera-Test- und Diagnosebereich.
 - `src/styles.css`: Gestaltung der V12-Oberfläche und Kameradiagnose.
 - `src/app.js`: V12-Anwendungslogik mit Anbindung an die Kamerasteuerung.
+- `src/zoom.js`: Voranalyse, konservative Ganzkörperrahmen, Cache und statische Ausschnittgeometrie.
 - `src/camera.js`: Kamerastart, Rohvorschau, Fehlerbehandlung und lokale Diagnose.
 - `tests/test_camera.py`: automatisierte Chromium-Kamera- und V12-Regressionstests.
 - `docs/TEST_RESULTS.md`: Testergebnisse und ausdrücklich offene Geräteprüfungen.
@@ -44,7 +51,7 @@ Lies zuerst `AGENTS.md`, danach `docs/IMPLEMENTATION_PLAN.md`. Beginne mit Phase
 
 ## Automatisierte Tests
 
-Die Anwendung selbst benötigt keine Paketinstallation. Für die Browsertests werden Python, Playwright und Chromium benötigt:
+Die Anwendung selbst benötigt keine Paketinstallation. Für die Browsertests werden Python, Playwright, Chromium und FFmpeg (synthetische Zoom-Testclips) benötigt:
 
 ```sh
 python3 -m venv .venv
@@ -52,6 +59,8 @@ python3 -m venv .venv
 CHROMIUM_PATH=/usr/bin/chromium .venv/bin/python -m unittest discover -s tests -v
 node --check src/camera.js
 node --check src/app.js
+node --check src/zoom.js
+node tests/zoom.test.cjs
 ```
 
 `CHROMIUM_PATH` auf den lokalen Chromium-Pfad setzen. Die Tests starten ihren eigenen lokalen Webserver und verwenden ausschließlich eine simulierte Kamera und synthetische Videos. Externe Downloads sind gesperrt; ein Test ersetzt das Pose-Modell gezielt, um Trainingsstart und Aufnahme zu prüfen. Damit werden keine echte Pose-Erkennung, Android-Hardware oder Audio-Synchronität nachgewiesen.

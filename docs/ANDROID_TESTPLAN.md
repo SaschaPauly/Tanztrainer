@@ -47,3 +47,17 @@
 - Nach positivem Kameratest die vollständige bestehende Testmatrix einschließlich Modell, Video, Training, Ton, Spiegelung, Freistellung, Splitaufnahme, Nachanalyse und Bildpaaren abarbeiten. Das aktuelle Kamerainkrement ändert keine Pose-/Trainingslogik und stellt keine vollständige Phase-1-Abnahme dar.
 
 Ergebnisprotokoll: Datum, Gerätemodell, Android-Version, Browser/Version, HTTPS-Adresse, Android-/Website-Kamerarechte, Schritte, Diagnose und beobachtetes Ergebnis lokal dokumentieren. Keine Video-/Kamerabilder oder vollständige Browserkennung ohne Zustimmung veröffentlichen. Automatisierter aktueller Stand: `docs/TEST_RESULTS.md`.
+
+
+## Statischer Autozoom (v1.1.0 vorgesehen, Geräteabnahme offen)
+
+1. GitHub-Pages-HTTPS bzw. PR-Preview direkt in Android Chrome auf dem Galaxy S24+ öffnen. Modell laden, lokale Clips im Hoch- und Querformat mit unterschiedlichen Auflösungen, Abständen und Perspektiven importieren. Auch „rechte Bildhälfte“ und „ganzes Bild“ prüfen.
+2. Auf Status warten; Start muss während der Analyse gesperrt sein. Kamera schon währenddessen starten: Vorschau muss weiterlaufen. Analysezeit, groben Spitzenspeicher und Reaktionsfähigkeit dokumentieren. Hintergrundfarbe bei aktiver Voranalyse separat prüfen (Maskeninferenz pausiert).
+3. Ganzes Video mit seitlichen Bewegungen, großen Armen, Ausfallschritten und Drehungen abspielen. Kopf, Hände, Füße und Sicherheitsrand prüfen; zwischen Start und Ende darf der Bildausschnitt nicht wandern. Bildschirm drehen, Musik und Splitbildaufnahme prüfen. Kamera wie zuvor spiegeln und Hintergrundeffekte testen.
+4. Clips ohne Person, mit verdeckten Füßen, mehreren Personen und ungeeignetem Format prüfen: konservativer Fallback, kein unsicherer Zusatzzoom. Bei mehreren Personen ist manuelle Ausschnittwahl erforderlich; keine Identitätsgarantie.
+5. Analyse überspringen, währenddessen Stop/Tabwechsel ausführen und Datei/Ausschnitt wechseln: kein verspätetes Überschreiben, keine weiterlaufenden Decoder. Nach sicherem Fallback muss der normale Start möglich sein.
+6. Dasselbe unveränderte Video erneut importieren und Seite neu laden: Cachemeldung, keine neue Poseanalyse. Dateiinhalte ändern: neue Analyse. Browserdaten löschen: Cache entfernt. Privater Modus/gesperrter Speicher: keine Funktionsblockade.
+7. Autozoom aus/ein, Wahl nach Reload, gespeicherte Splitbilddatei, Nachanalyse, Bildpaare, Score und Zeitversatzanzeige gegen Baseline vergleichen. Autozoom aus muss die vorherige Darstellung zeigen. Nach Stop Kamera-LED/Tracks prüfen.
+8. Clip >5 Minuten oder Ressourcen-/Timeoutfall: bisherige Darstellung des vollständigen Videos; kein Zoom aus einer unvollständigen Anfangsanalyse.
+
+Pro Fall Browser-/Android-Version, Clipdauer/-format, Ausschnittwahl, Analysezeit, Erkennungsprobleme und Ergebnis protokollieren. Diese Liste ist keine bereits erfolgte Geräteprüfung.
