@@ -1,0 +1,27 @@
+{
+  "format": "showtanz-choreo",
+  "version": "1.0.0",
+  "limits": {
+    "archiveBytes": 1073741824,
+    "entryBytes": 1073741824,
+    "totalUncompressedBytes": 1610612736,
+    "jsonBytes": 1048576,
+    "compressionRatio": 100,
+    "entries": 7
+  },
+  "files": [
+    "manifest.json",
+    "reference/video.mp4",
+    "reference/poses.bin",
+    "reference/timestamps.bin",
+    "reference/zoom.json",
+    "reference/quality.json",
+    "assets/preview.jpg"
+  ],
+  "compressionMethods": [
+    0,
+    8
+  ],
+  "manifestSchema": "choreography.schema.json",
+  "semanticRules": "VALIDATION.md"
+}
