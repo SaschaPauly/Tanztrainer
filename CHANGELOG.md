@@ -20,3 +20,14 @@
 - V12-Code ohne Funktionsänderung in HTML/CSS/JS getrennt.
 - Codex-Arbeitsauftrag, Android-Diagnoseplan und Roadmap ergänzt.
 - Keine Android-Fehlerbehebung durchgeführt oder behauptet.
+
+## Unveröffentlicht – Showtanztrainer 2.0, Phase 1 (2026-11-16)
+
+- Separater Formatvertrag `showtanz-choreo` 1.0.0 mit JSON-Schema,
+  MediaPipe-Gelenkreihenfolge, binären Posen/Zeitstempeln und festem Zoom.
+- Offline-Python-Validator mit Größen-, ZIP-Sicherheits-, Hash- und
+  Semantikprüfung; sprachunabhängiger Vertrag für spätere JavaScript-Importer.
+- Eigene synthetische CC0-Testmedien als .choreo-Paket, Generator und
+  automatisierte Positiv-/Negativtests.
+- Bestandsaufnahme, bestätigte GitHub-Pages-Konfiguration und Integrationsplan.
+- Produktive Webdateien unverändert; kein Merge, Deployment oder neue Livefunktion.
