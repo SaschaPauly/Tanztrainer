@@ -1,5 +1,23 @@
 # Showtanztrainer 2.0 – Architektur und Phasen
 
+## Ergänzung: lokale Skelettvorschau und Modellvergleich
+
+`analyzer.compare_models` verwendet denselben CLI-Analysepfad für Lite, Full
+und Heavy; alle PTS müssen identisch sein. Drei gültige Pakete, Auswahlprotokoll,
+Qualitätsvergleich und eine eigenständige Offline-HTML-Vorschau entstehen in
+einem neuen lokalen Ergebnisordner. `analyzer.models` lädt die versionierten
+Google-Bundles nur bei ausdrücklichem Aufruf. `preview` bettet Steuerung und
+Binärdaten ein; nur das lokale Referenzvideo wird separat geladen.
+
+Der optionale `PersonSelector` gilt ausschließlich für bestätigte Einpersonen-
+Aufnahmen. Er nutzt Vordergrundgröße und zeitliche Position/Skalierung, verwirft
+mehrdeutige Kandidaten und dokumentiert Wiederaufnahmen. Zusatzhypothesen sind
+keine nachgewiesenen realen Personen oder Spiegelungen. Die Vorschau zeigt
+sie grau; die Auswahl muss visuell geprüft werden. Standard bleibt die
+bisherige konservative Mehrdeutigkeitsbehandlung. Keine neue browserseitige
+Trainingsbewertung oder Änderung am .choreo-Format. Anleitung und Messwerte:
+`analyzer/README.md`, `docs/TEST_RESULTS.md`.
+
 ## Phase 2: CLI-Analyzer (2026-11-22)
 
 Grundlage ist der gemergte Format-PR [#4](https://github.com/SaschaPauly/Tanztrainer/pull/4)

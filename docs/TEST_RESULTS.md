@@ -1,5 +1,41 @@
 # Teststatus
 
+## Skelettvorschau, Einpersonenmodus und Modellvergleich (2026-11-22)
+
+- 82 Python-Tests unter Windows/Python 3.13 erfolgreich: 34 bisherige
+  Analyzer-, 30 Format-, fünf Punktexport- und dreizehn neue Vergleichstests.
+- Neue Tests: Vordergrundwahl, Wechsel der Kandidatenreihenfolge, mehrdeutige
+  Initial-/Zeitzuordnung, abgewiesene Sprünge, dokumentierte Wiederaufnahme,
+  konservativer Standardmodus, gültiger Export im expliziten Einpersonenmodus,
+  fehlende Modelle, Zeitstempelabgleich, HTML-Script-Escaping, Diagnosewerte,
+  kompletter Drei-Modell-Export und Aufräumen bei Fehler im mittleren Modell.
+- Lokale Chrome-Prüfung mit synthetischem Fixture: drei Canvas-Skelette,
+  Wiedergabezeitpunkt nach Einzelbildschritt 0,25 s, Nummern-/Cropumschaltung,
+  kein JavaScript-Fehler und keine HTTP-/HTTPS-Anfragen. Visuell geprüft.
+- Zusätzlich echtes lokales Video in Chrome geprüft: vollständige Zeitleiste
+  von 112,37 s, vier aufeinanderfolgende Einzelbildschritte bei rationalen PTS,
+  Wiedergabe, Großansicht, Nummern und Zoomumschaltung. Kein JavaScript-Fehler
+  und keine externen Requests. Vier Node-Regressionstests sichern PTS-Rundung
+  bei der Anzeige und frühe/späte Medienmetadaten ab.
+- Vollständiger CPU-Vergleich mit je 3370 identischen Zeitpunkten:
+
+  | Modell | Unsichere Bilder | Mindestens 6/8 sichere Arm-/Beinabschnitte | Fehlende Punkte | Gesamtlaufzeit |
+  | --- | --- | --- | --- | --- |
+  | Lite | 23,26 % | 92,76 % | 594 | 128,76 s |
+  | Full | 22,11 % | 92,08 % | 1551 | 161,23 s |
+  | Heavy | 51,01 % | 79,64 % | 759 | 287,01 s |
+
+  Werte gelten für dieses lokale Testvideo mit bestätigtem Einpersonenmodus;
+  sie sind kein allgemeines Modellranking. Alle drei Paket-Crops bleiben unter
+  der geltenden 10-%-Regel beim Ganzbild. Lite ohne Einpersonenmodus hatte im
+  früheren Lauf 1089 fehlende Punkte und 23,56 % unsichere Bilder. Modelle und
+  persönliche Videos/Posen/Vorschaubilder wurden nicht eingecheckt/hochgeladen.
+- Einpersonenverfolgung bleibt heuristisch, zusätzliche Erkennungen sind keine
+  Bestätigung realer Nebenpersonen. Modellkonfidenzen sind keine gemessenen
+  Fehlerquoten oder Trainingsnoten. Echte Bewegungsgüte braucht Sichtprüfung.
+- Vorschau und Diagnose sind unabhängig von der bestehenden Browseranwendung;
+  Paketformat, Fixture und produktive Webdateien bleiben unverändert.
+
 ## Zoomtoleranz 10 % (2026-11-22)
 
 - 69 Python-Tests unter Windows/Python 3.13 erfolgreich: 34 Analyzer-,
