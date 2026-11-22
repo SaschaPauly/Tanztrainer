@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## Separate Haltungspunkt-Testausgabe – 2026-11-22 (PR zur Prüfung)
+- Validierte `.choreo`-Daten ohne erneute Analyse separat als CSV und SQLite ausgeben, einschließlich exakter Zeitstempel, 2D-/geschätzter 3D-Werte, Konfidenzen und Missing-Kennzeichen.
+- Bildtabelle, Zoom-/Qualitätsbericht und Leseanleitung ergänzen die Diagnose. Keine Änderung an Zoomalgorithmus, Quellvideo, Paketformat oder Webanwendung.
+- Fünf Regressionstests für Zahlen-/Zeitstempeltreue, Missing-Daten, Quellschutz, ungültige Pakete und Abbruch; Windows-CI erweitert.
+
 ## Analyzer-Importkorrektur – 2026-11-22 (PR zur Prüfung)
 - Fehlende Pixelverhältnis-Metadaten (`0/1`) beim Import akzeptieren und als quadratische Pixel ausgeben; Regressionstest für unveränderte Abmessungen und PTS. Originalvideo, Schema und Webanwendung bleiben unverändert.
 - Original-Zeitbasis beim Neukodieren übernehmen, damit auch Zeitstempel zwischen nominalen FPS-Rasterpunkten erhalten bleiben; Regression mit 5-ms-Versatz ergänzt.

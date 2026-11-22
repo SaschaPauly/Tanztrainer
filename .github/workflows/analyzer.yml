@@ -7,6 +7,7 @@ on:
       - 'shared/**'
       - 'tests/test_analyzer.py'
       - 'tests/test_choreo.py'
+      - 'tests/test_export_poses.py'
       - 'tests/fixtures/**'
       - '.github/workflows/analyzer.yml'
   workflow_dispatch:
@@ -31,4 +32,5 @@ jobs:
       - run: python -m pip check
       - run: python -m unittest discover -s tests -p test_analyzer.py -v
       - run: python -m unittest discover -s tests -p test_choreo.py -v
+      - run: python -m unittest discover -s tests -p test_export_poses.py -v
       - run: python -m analyzer.validate tests/fixtures/synthetic.choreo

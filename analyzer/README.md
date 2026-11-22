@@ -116,11 +116,49 @@ sich nicht ausschließen. Mehrpersonenaufnahmen erfordern einen Folgeauftrag.
 Tanzclips mit Drehungen/Verdeckungen und Langzeitperformance bleiben manuell
 abzunehmen.
 
+## Haltungspunkte separat für Tests ausgeben
+
+Ein vorhandenes, gültiges Paket kann ohne neue Videoanalyse lesbar exportiert
+werden. Der Ausgabeordner muss neu sein; sein übergeordneter Ordner existiert:
+
+```powershell
+.\.venv\Scripts\python -m analyzer.export_poses 'C:\Tanzvideos\Training.choreo' 'C:\Tanzvideos\Training - Haltungspunkte'
+```
+
+- `haltungspunkte.csv`: 33 Zeilen pro Analysezeitpunkt, mit Frameindex,
+  Originaltimestamp, Gelenkindex/-name, Bild-X/Y, geschätztem Welt-X/Y/Z,
+  Visibility, Presence und Missing-Kennzeichen.
+- `bilder.csv`: eine Zeile pro Analysezeitpunkt mit Fehlzahl, Anzahl vorhandener
+  Punkte mit Konfidenz unter 0,5 und zuverlässigen Punkten nahe dem Bildrand.
+- `haltungspunkte.sqlite`: Tabellen `frames`, `landmarks`, `landmark_names`,
+  `metadata`; Ansicht `pose_points` verknüpft Zeitpunkte, Namen und Punkte.
+- `bericht.json`: Manifest/Qualitätsbericht, berechnete Fehlzahlen und Zoomstatus.
+- `LIESMICH.txt`: Erläuterung der Koordinaten und Dateien.
+
+CSV verwendet UTF-8 mit BOM, Semikolon und Dezimalkomma für deutsches Excel.
+SQLite speichert Zahlen direkt als REAL. Fehlende Koordinaten sind leere
+CSV-Zellen bzw. SQL-NULL, niemals erfundene Nullen. Alle Frame-/Gelenkindizes
+beginnen bei 0. Für die Datenprüfung reicht die Validator-Abhängigkeit
+`analyzer/requirements.txt`; MediaPipe, FFmpeg und ein Modell sind nicht nötig.
+Das Quellpaket bleibt unverändert. Daten werden frameweise aus dem validierten
+Paket gelesen; es findet keine neue Modellerkennung oder Interpolation statt.
+Die Dateien enthalten die lokalen Bewegungsdaten und gehören nicht ins
+öffentliche Git-Repository.
+
+Zoomdiagnose: Der aktuelle konservative Algorithmus fällt bereits bei einem
+unsicheren Analyseframe auf Ganzbild zurück. Er verändert das Video auch bei
+einem berechneten Crop nicht physisch; die Zoommetadaten muss später der Player
+anwenden. Niedrige Konfidenzen sind in den Punkttabellen erkennbar. Die Zahl
+erkannter Personen wurde im Format 1.0.0 nicht pro Frame gespeichert und kann
+aus dem Export nicht nachträglich rekonstruiert werden; dafür bleiben die
+zusammengefassten Warnungen im ursprünglichen Qualitätsbericht maßgeblich.
+
 ## Prüfung
 
 ```powershell
 .\.venv\Scripts\python -m unittest discover -s tests -p test_analyzer.py -v
 .\.venv\Scripts\python -m unittest discover -s tests -p test_choreo.py -v
+.\.venv\Scripts\python -m unittest discover -s tests -p test_export_poses.py -v
 .\.venv\Scripts\python -m analyzer.validate tests/fixtures/synthetic.choreo
 node tests/zoom.test.cjs
 ```
