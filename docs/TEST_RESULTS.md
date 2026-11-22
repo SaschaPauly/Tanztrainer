@@ -1,5 +1,20 @@
 # Teststatus
 
+## Separate Haltungspunkt-Testausgabe (2026-11-22)
+
+- Fünf neue Windows-/Python-3.13-Tests erfolgreich: CSV/SQLite exakt gegen
+  Float32-Punkte und Float64-Zeiten des Fixtures geprüft, fehlende Koordinaten
+  als leer/NULL, kein Überschreiben, keine Ausgabe für ungültige Pakete,
+  temporäre Daten bei Abbruch aufgeräumt. Originalpaket per Hash unverändert.
+- Lokales Referenzpaket separat exportiert: 3370 Zeitpunkte, 111210 Punkte,
+  1089 fehlende Punkte in 33 Frames und 761 weitere Frames mit niedriger
+  Konfidenz bei vorhandenen Punkten. Damit ist der Ganzbild-Fallback des
+  derzeitigen konservativen Zoomalgorithmus erklärbar. Keine Medien oder
+  persönlichen Bewegungsdaten eingecheckt/hochgeladen.
+- Der Zoom ist Metadatum und verändert das Paketvideo nicht physisch. In
+  diesem Schritt weder Crop-Regeln noch Schema oder Browserplayer geändert.
+- Windows-CI prüft den neuen Export zusätzlich zu Analyzer und Paketvalidator.
+
 ## Analyzer-Importkorrektur (2026-11-22)
 
 Ein reales Referenzvideo enthält für das Pixelseitenverhältnis den Wert `0/1`
