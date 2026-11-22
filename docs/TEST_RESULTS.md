@@ -5,10 +5,11 @@
 Umgebung: Windows, Python 3.13, PySide6 6.12.0, vorhandene gepinnte
 Analyseabhängigkeiten. Die Windows-CI prüft Python 3.12 und 3.13 einschließlich Qt.
 
-- 115 Python-Fälle: 94 bestehende plus 12 Backend- und neun Qt-Fälle.
+- 116 Python-Fälle: 94 bestehende plus 13 Backend- und neun Qt-Fälle.
   Neue Prüfungen: Abbruch/atomarer Ausgabeschutz, Import ohne Doppelkodierung,
   Aufräumen und FFmpeg-Prozessfreigabe, unveränderte Paketkopie, manuelle
   Personenauswahl/Mehrdeutigkeit/Identität nach langer Lücke, Memory-Mapping,
+  tatsächliche Mediengeometrie/Codec-/Dauerprüfung vor der Qt-Vorschau,
   exakte PTS-Auswahl, aufeinanderfolgende Vor-/Rückschritte, Crop-Geometrie,
   Hintergrundarbeit, Schließen während eines Auftrags, Dateisperren und Erhalt
   eines geöffneten Pakets bei Ladefehlern. Ein integrierter Qt-Test durchläuft

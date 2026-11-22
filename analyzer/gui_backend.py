@@ -11,7 +11,7 @@ import zipfile
 from analyzer.cli import analyze
 from analyzer.runtime import check_cancel, notify
 from analyzer.validate import validate
-from analyzer.video import normalize
+from analyzer.video import normalize, inspect_video
 
 
 def read_frame(video, seconds, *, cancel=None, progress=None):
@@ -124,6 +124,14 @@ def open_package(package, *, owner=None, cancel=None, progress=None):
                     while block:=source.read(65536):
                         check_cancel(cancel)
                         target.write(block)
+        check_cancel(cancel)
+        # The portable validator checks ZIP/binary contracts, not codecs. Check
+        # real media dimensions/limits before handing a package video to Qt.
+        info=inspect_video(Path(workspace.name)/'video.mp4')
+        if (info['width'],info['height'])!=(manifest['video']['width'],manifest['video']['height']):
+            raise ValueError('Videogröße widerspricht den Paketmetadaten.')
+        if info['codec']!='h264' or info['pixel_format']!='yuv420p' or abs(info['duration']-manifest['durationSeconds'])>.1:
+            raise ValueError('Paketvideo entspricht nicht dem H.264-/Zeitformat.')
         check_cancel(cancel)
         session=PackageSession(package,manifest,quality,workspace,owner)
         notify(progress,'open',1.,'Choreografie bereit zur Prüfung.')

@@ -20,6 +20,13 @@ FIXTURE=Path(__file__).parent/'fixtures/synthetic.choreo'
 
 
 class DesktopBackendTests(unittest.TestCase):
+    def test_package_media_geometry_checked_before_preview(self):
+        metadata=dict(width=320,height=120,duration=1,codec='h264',pixel_format='yuv420p')
+        with patch('analyzer.gui_backend.inspect_video',return_value=metadata):
+            with self.assertRaisesRegex(ValueError,'Videogröße'):open_package(FIXTURE)
+        metadata.update(width=160,codec='mpeg4')
+        with patch('analyzer.gui_backend.inspect_video',return_value=metadata):
+            with self.assertRaisesRegex(ValueError,'H.264'):open_package(FIXTURE)
     def test_cancel_normalization_kills_and_reaps_only_owned_ffmpeg(self):
         state={'calls':0,'killed':False,'waited':False}
         def cancel():
