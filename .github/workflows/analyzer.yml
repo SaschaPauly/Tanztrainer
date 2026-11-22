@@ -8,6 +8,8 @@ on:
       - 'tests/test_analyzer.py'
       - 'tests/test_choreo.py'
       - 'tests/test_export_poses.py'
+      - 'tests/test_model_comparison.py'
+      - 'tests/preview.test.cjs'
       - 'tests/fixtures/**'
       - '.github/workflows/analyzer.yml'
   workflow_dispatch:
@@ -33,4 +35,6 @@ jobs:
       - run: python -m unittest discover -s tests -p test_analyzer.py -v
       - run: python -m unittest discover -s tests -p test_choreo.py -v
       - run: python -m unittest discover -s tests -p test_export_poses.py -v
+      - run: python -m unittest discover -s tests -p test_model_comparison.py -v
+      - run: node tests/preview.test.cjs
       - run: python -m analyzer.validate tests/fixtures/synthetic.choreo

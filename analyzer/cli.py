@@ -1,5 +1,6 @@
 """Windows-compatible local Showtanz video analyzer (showtanz-choreo 1.0.0)."""
 import argparse
+from collections import Counter
 import math
 from pathlib import Path
 import struct
@@ -11,11 +12,12 @@ from analyzer.export import export
 from analyzer.pose import PoseEngine, pack_pose
 from analyzer.video import frames, normalize
 from analyzer.validate import SPEC
+from analyzer.selection import PersonSelector, Selection
 
 
 def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
             max_side=1280, aspect=9/16, overwrite=False, ffmpeg=None,
-            zoom_max_uncertain_percent=10, engine_factory=PoseEngine):
+            zoom_max_uncertain_percent=10, single_person=False, observer=None, engine_factory=PoseEngine):
     source, output, model = Path(source).resolve(), Path(output).resolve(), Path(model).resolve()
     if not source.is_file() or not model.is_file():
         raise ValueError('Video oder lokale MediaPipe-.task-Modelldatei fehlt.')
@@ -39,6 +41,12 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         quality.warn(f'Zeitliche Abtastung auf höchstens {max_fps:g} fps; kurze Bewegungen können fehlen. Zoom bleibt sicherheitshalber Ganzbild.')
         quality.safe = False
     quality.warn('3D ist eine Modellschätzung relativ zur Hüfte, keine vermessene Bühnenposition.')
+    selector = PersonSelector() if single_person else None
+    selection_counts = Counter()
+    extra_detection_frames = 0
+    if single_person:
+        quality.warn('Bestätigte Einpersonenaufnahme: heuristische Vordergrund-/Zeitverfolgung aktiv. '
+                     'Zusatzdetektionen können Spiegelungen oder Fehlkennungen sein; Auswahl visuell prüfen.')
     with tempfile.TemporaryDirectory(prefix='.analysis-', dir=output.parent) as directory:
         work = Path(directory)
         payload = {name: work/name.replace('/', '_') for name in (
@@ -72,10 +80,18 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
                     image.thumbnail((max_side, max_side))
                     import numpy as np
                     result = engine.detect(np.asarray(image.convert('RGB')).copy(), timeline.model_ms)
-                    data, missing, points = pack_pose(result)
+                    raw_count = len(result.pose_landmarks)
+                    decision = selector.select(result, time) if selector else Selection(
+                        result, 0 if raw_count == 1 else None, raw_count,
+                        'single' if raw_count == 1 else 'ambiguous' if raw_count > 1 else 'missing')
+                    selection_counts[decision.status] += 1
+                    extra_detection_frames += int(raw_count > 1)
+                    data, missing, points = pack_pose(decision.result)
+                    if observer is not None:
+                        observer(time, result, decision)
                     poses.write(data)
                     times.write(struct.pack('<d', time))
-                    quality.observe(time, missing, points, len(result.pose_landmarks))
+                    quality.observe(time, missing, points, 1 if decision.index is not None else raw_count)
                     count += 1
                     if count % 100 == 0:
                         print(f'{count} Analyseframes; Videoposition {time:.2f} s; {engine.backend}', file=sys.stderr)
@@ -85,6 +101,11 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         if not count:
             raise ValueError('Keine dekodierbaren Videoframes.')
         duration = max(info['duration'], last_end)
+        if single_person:
+            quality.warn(f'Personenauswahl: {extra_detection_frames} Bilder mit Zusatzdetektionen; '
+                         f'{selection_counts["ambiguous"]} mehrdeutig, '
+                         f'{selection_counts["jump_rejected"]} Positionssprünge abgewiesen, '
+                         f'{selection_counts["reacquired"]} Wiederaufnahmen nach Erkennungslücke.')
         zoom = quality.zoom(info['width'], info['height'], aspect)
         manifest = export(output, payload, title=title, duration=duration, count=count,
                           model=engine.identity, width=info['width'], height=info['height'],
@@ -106,12 +127,15 @@ def main(argv=None):
                         help='Maximaler Anteil unsicherer Analysebilder für festen Zoom (Standard: 10 Prozent)')
     parser.add_argument('--ffmpeg', type=Path, help='Eigene FFmpeg-Programmdatei statt gebündelter Version')
     parser.add_argument('--overwrite', action='store_true')
+    parser.add_argument('--single-person', action='store_true',
+                        help='Bestätigte Einpersonenaufnahme: Vordergrundfigur zeitlich verfolgen; Zusatzdetektionen prüfen')
     args = parser.parse_args(argv)
     try:
         manifest, quality = analyze(args.video, args.output, args.model, title=args.title,
                                     backend=args.backend, max_fps=args.max_fps, max_side=args.max_side,
                                     aspect=args.aspect, overwrite=args.overwrite, ffmpeg=args.ffmpeg,
-                                    zoom_max_uncertain_percent=args.zoom_max_uncertain_percent)
+                                    zoom_max_uncertain_percent=args.zoom_max_uncertain_percent,
+                                    single_person=args.single_person)
     except KeyboardInterrupt:
         parser.exit(130, 'Analyse abgebrochen; kein unvollständiger Export.\n')
     except Exception as exc:

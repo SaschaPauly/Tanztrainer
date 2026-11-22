@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## Skelettvorschau und Modellvergleich – 2026-11-22 (PR zur Prüfung)
+- Lite, Full und Heavy auf identischen Zeitpunkten lokal vergleichen; synchronisierte Offline-Skelettvorschau mit farbigen Konfidenzen, Einzelbildschritten, Zusatzdetektionen und Zoomdarstellung.
+- Expliziter Einpersonenmodus wählt eine deutliche Vordergrundfigur und prüft zeitliche Kontinuität. Mehrdeutige Kandidaten/Positionssprünge bleiben fehlend; Zusatzdetektionen werden nicht als nachgewiesene zweite Person gewertet.
+- Getrennte Diagnose für alle 33 Punkte und acht Arm-/Beinabschnitte, Auswahlprotokoll, Modellidentität, Laufzeit und drei schemaidentische Pakete. Offizielle Modelle nur ausdrücklich herunterladen.
+- Dreizehn neue Python- und vier Node-Tests, Windows-CI erweitert, lokale Chrome-Vorschau mit echtem Video geprüft. Webanwendung, Schema und Originalvideo unverändert; kein automatischer Merge.
+
 ## Zoomtoleranz – 2026-11-22 (PR zur Prüfung)
 - Bis einschließlich 10 % unsichere Analysebilder für festen Zoom akzeptieren; CLI-Option `--zoom-max-uncertain-percent`, Prozentanteil und Grenze im Qualitätsbericht.
 - Zuverlässige Extrema auch aus unsicheren Bildern erhalten, zusätzliche 5 % Randreserve. Bei längeren Erkennungslücken, Zeitlücken, Bildrandnähe oder Sampling weiterhin Ganzbild-Fallback. Binärdaten, Format und Webanwendung unverändert.

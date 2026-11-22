@@ -2,7 +2,8 @@
 
 Eigenständige lokale Windows-Python-CLI: Video importieren, MediaPipe Pose
 Landmarker mit 33 Punkten ausführen und ein validiertes `showtanz-choreo 1.0.0`
-schreiben. Keine GUI; Browserimport folgt in Phase 4. Die Webanwendung bleibt
+schreiben. Lokale Skelettvorschau/Modellvergleich sind verfügbar; eine vollständige
+Windows-GUI folgt separat. Browserimport folgt in Phase 4. Die Webanwendung bleibt
 unverändert.
 
 ## Windows-Installation
@@ -52,6 +53,7 @@ Validierung. Strg+C entfernt temporäre Dateien und erhält vorhandene Ausgaben.
 | `--zoom-max-uncertain-percent 10` | Anteil unsicherer Analysebilder für festen Zoom; Standard 10 %, einschließlich der Grenze. 0 stellt die strenge Regel wieder her |
 | `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264, `-fps_mode` und `-enc_time_base:v demux` erforderlich |
 | `--overwrite` | Vorhandenes Paket nach erfolgreicher Analyse atomar ersetzen |
+| `--single-person` | Nach ausdrücklicher Bestätigung einer Einpersonenaufnahme: Vordergrundfigur zeitlich verfolgen, Zusatzdetektionen konservativ behandeln |
 
 Fortschritt erscheint auf stderr; Ergebnis/Qualitätswarnungen auf stdout.
 Exitcodes: 0 = gültiger Export, auch bei `partial`; 1 = Import-/Modell-/Datei-/
@@ -124,13 +126,70 @@ Randreserve außerhalb des Ausschnitts liegen. Posen und Zeitstempel bleiben
 unverändert, es gibt keine Interpolation oder physische Videobeschneidung.
 
 Voraussetzung: **eine vorgesehene Person im Video**. MediaPipe sucht bis zu
-zwei Posen; bei mehreren erkannten Personen wird der ganze Frame fehlend
-geschrieben. Noch keine Personenauswahl oder Identitätsverfolgung. Nicht
-erkannte Nebenpersonen und Identitätswechsel zwischen Einzelpersonen lassen
-sich nicht ausschließen. Mehrpersonenaufnahmen erfordern einen Folgeauftrag.
+zwei Posen. Standardmäßig wird bei mehreren Erkennungen der ganze Frame
+fehlend geschrieben. `--single-person` ist nur für ausdrücklich bestätigte
+Einpersonenaufnahmen gedacht: Eine deutlich größere Vordergrundfigur wird
+initial gewählt, danach werden Position und Größenänderung über die Zeit
+verglichen. Bei ähnlichen Kandidaten oder Positionssprüngen bleibt die Pose
+fehlend. Nach mehr als 0,75 s ohne sichere Zuordnung ist eine konservative
+Neuauswahl nötig und wird dokumentiert. Das ist keine garantierte
+Identitätsverfolgung oder automatische Spiegelungserkennung. Die Auswahl muss
+in der Vorschau kontrolliert werden. Mehrpersonenaufnahmen bleiben Folgearbeit.
 3D ist eine hüftrelative Modellschätzung, kein kalibriertes Motion Capture.
 Tanzclips mit Drehungen/Verdeckungen und Langzeitperformance bleiben manuell
 abzunehmen.
+
+## Skelettvorschau und Lite/Full/Heavy vergleichen
+
+Die drei offiziellen Google-Modelle werden nur nach ausdrücklichem Aufruf
+heruntergeladen. Bestehende lokale `.task`-Dateien können wiederverwendet werden:
+
+```powershell
+.\.venv\Scripts\python -m analyzer.models models
+.\.venv\Scripts\python -m analyzer.compare_models 'C:\Tanzvideos\Training.mp4' 'C:\Tanzvideos\Training - Modellvergleich' --models-dir models --single-person --backend cpu
+```
+
+Der neue Ausgabeordner enthält `vergleich.html`, `reference.mp4`, drei gültige
+Pakete `lite.choreo`, `full.choreo`, `heavy.choreo`, `vergleich.json` und
+`bildervergleich.csv`. `vergleich.html` per Doppelklick in Chrome oder Edge
+öffnen. Alle Dateien zusammen im selben Ordner belassen. Keine Serverinstallation,
+kein Browser-Modell, kein CDN und keine Netzwerkanfragen in der Vorschau.
+
+Bedienung: gemeinsame Wiedergabe/Zeitleiste, voriges/nächstes Analysebild,
+Einzelmodell bei „Darstellung“ groß anzeigen,
+Ton, zusätzliche Erkennungen und Punktnummern ein-/ausblenden. Drei Ansichten
+zeigen denselben Videotimestamp mit farbigem Skelett: Grün ab 0,65, Gelb ab
+0,50, Rot unter 0,50 (jeweils Minimum aus Visibility und Presence). Fehlende
+Punkte werden nicht erfunden. Weiß umrahmt die gewählte Figur, Grau zeigt
+zusätzliche Modellhypothesen. Diese können Spiegelungen oder Fehlkennungen
+sein; eine reale zweite Person wird daraus nicht abgeleitet. Türkis markiert
+den festen Zoomrahmen; „Festen Zoom anwenden“ stellt den Crop mit nötigen
+Balken dar. Das Originalvideo wird nicht verändert.
+
+Die Messwerte trennen unsichere Bilder über alle 33 Punkte von der Abdeckung
+der acht Arm-/Beinabschnitte. Als verwertbar zählt hier mindestens sechs von
+acht Abschnitten mit Visibility und Presence ab 0,65 an beiden Endpunkten.
+Das ist eine Diagnose der Referenz, keine Trainingsnote und keine gemessene
+Genauigkeit. Geringere Unsicherheit allein beweist keine bessere Pose.
+Modellidentität inklusive SHA-256, Qualitätswarnungen, tatsächliche Auswahl,
+Zusatzdetektionen und gesamte Verarbeitungszeit stehen in den Vergleichsdaten.
+`selectedIndex` ist in CSV/JSON nullbasiert (leer/null bei keiner Auswahl);
+die Vorschau zeigt die Figuren zur leichteren Bedienung als 1 und 2 an.
+
+Standardmäßig werden alle Bilder sequenziell auf CPU analysiert. Dieselben
+PTS sind für alle drei Modelle verbindlich; Abweichungen brechen den Vergleich
+ab. `--max-fps 10` erlaubt einen ausdrücklich gekennzeichneten Stichprobentest;
+das aktiviert wie bisher den Ganzbild-Zoom-Fallback. `--max-side` begrenzt die
+Inferenzauflösung für alle Modelle gleich. Die Vorschau ist auf 20000
+Analysezeitpunkte begrenzt; für längere Videos eine niedrigere Abtastrate
+wählen. Unterbrochene/fehlgeschlagene Vergleiche veröffentlichen keinen
+unvollständigen Ergebnisordner. Die drei Analysen können mehrere Minuten
+dauern; Speicherplatz für drei Pakete plus Vorschauvideo vorsehen.
+
+`--download-models` beim Vergleich ist eine alternative ausdrückliche
+Downloadfreigabe für die Google-Modelle. Die eigentliche Analyse überträgt
+keine Bilder, Posen oder Videos. Modelle und persönliche Ergebnisse nicht
+einchecken. Ein fehlendes Modell führt ohne Downloadoption zum Fehler.
 
 ## Haltungspunkte separat für Tests ausgeben
 
@@ -176,6 +235,8 @@ zusammengefassten Warnungen im ursprünglichen Qualitätsbericht maßgeblich.
 .\.venv\Scripts\python -m unittest discover -s tests -p test_analyzer.py -v
 .\.venv\Scripts\python -m unittest discover -s tests -p test_choreo.py -v
 .\.venv\Scripts\python -m unittest discover -s tests -p test_export_poses.py -v
+.\.venv\Scripts\python -m unittest discover -s tests -p test_model_comparison.py -v
+node tests/preview.test.cjs
 .\.venv\Scripts\python -m analyzer.validate tests/fixtures/synthetic.choreo
 node tests/zoom.test.cjs
 ```
