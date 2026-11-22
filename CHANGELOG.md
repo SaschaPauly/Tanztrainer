@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## Showtanztrainer 2.0 – Phase 4: .choreo im Browser – 2026-11-22 (PR zur Prüfung)
+- Lokaler, abbrechbarer Worker-Import mit ZIP-/CRC-/SHA-/JSON-/Schema-/Binär-/Medienprüfungen und begrenztem Speicherbudget; bisherige Referenz bei Fehler erhalten, Ressourcen beim Schließen freigeben.
+- Gespeicherte Referenzposen in Training und Nachanalyse auf der Originaltimeline lesen; fehlende/zu alte Daten ohne erfundene Werte behandeln. Nur Kamera neu erkennen; Bewertung und Spiegelungsregeln erhalten.
+- Festen Paketausschnitt mit Zielformat darstellen, Qualität anzeigen und Referenz ohne Modell/Kamera abspielen. Eingebetteten Ton einschließlich Offset lokal wiedergeben und in den Aufnahme-Mix übernehmen.
+- Normalen Videoimport, Autozoom, Kameradiagnose, Aufnahme und Bildpaare regressionsprüfen; Browser-CI ergänzen. Schema, Analyzer und Original-V12 unverändert. Kein automatischer Merge/Deployment; Android-Abnahme offen.
+
 ## Showtanztrainer 2.0 – Phase 3: Windows-Oberfläche – 2026-11-22 (PR zur Prüfung)
 - Native PySide6-Oberfläche und Doppelklickstarter: lokaler Videoimport, Lite-Download auf ausdrücklichen Aufruf, CPU/30-%-Standard, optionale Startperson-Markierung, Analyse im Hintergrund und kooperativer Abbruch.
 - Validierte vorhandene Pakete ohne Neuanalyse öffnen; native Videovorschau mit farbigen Haltungspunkten, festem Zoom, exakten Einzelbildschritten und Qualitätsbericht. CSV-/SQLite-Ausgabe integriert.
