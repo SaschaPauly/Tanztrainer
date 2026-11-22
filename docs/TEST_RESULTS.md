@@ -1,5 +1,20 @@
 # Teststatus
 
+## Zoomtoleranz 10 % (2026-11-22)
+
+- 69 Python-Tests unter Windows/Python 3.13 erfolgreich: 34 Analyzer-,
+  30 Format- und fünf Punktexporttests.
+- Sieben neue Fälle: genau 10 % erlaubt, nächstes unsicheres Bild darüber
+  verworfen, strenge 0-%-Option, ungültige Grenzen, langer zusammenhängender
+  Ausfall trotz eingehaltenem Prozentbudget, zuverlässige Extrema in partiellen
+  Bildern, keine Doppelzählung mehrerer Fehlerarten, Rand-/Zeitlücken-Fallback
+  und schemaidentischer Export mit bytegleichen Posewerten (mehrere Aspekte
+  in einzelnen Testfällen kombiniert).
+- Prozentanteil zählt unsichere Bilder, nicht einzelne Gelenke. Für das
+  bisherige lokale Referenzpaket sind 794/3370 = rund 23,6 % unsicher;
+  eine 10-%-Grenze hebt dessen Ganzbild-Fallback daher nicht auf.
+- Keine Änderung an produktiven Webdateien, Formatvertrag oder Fixture.
+
 ## Separate Haltungspunkt-Testausgabe (2026-11-22)
 
 - Fünf neue Windows-/Python-3.13-Tests erfolgreich: CSV/SQLite exakt gegen
