@@ -1,5 +1,41 @@
 # Teststatus
 
+## Phase 3 – native Windows-Oberfläche (2026-11-22)
+
+Umgebung: Windows, Python 3.13, PySide6 6.12.0, vorhandene gepinnte
+Analyseabhängigkeiten. Die Windows-CI prüft Python 3.12 und 3.13 einschließlich Qt.
+
+- 116 Python-Fälle: 94 bestehende plus 13 Backend- und neun Qt-Fälle.
+  Neue Prüfungen: Abbruch/atomarer Ausgabeschutz, Import ohne Doppelkodierung,
+  Aufräumen und FFmpeg-Prozessfreigabe, unveränderte Paketkopie, manuelle
+  Personenauswahl/Mehrdeutigkeit/Identität nach langer Lücke, Memory-Mapping,
+  tatsächliche Mediengeometrie/Codec-/Dauerprüfung vor der Qt-Vorschau,
+  exakte PTS-Auswahl, aufeinanderfolgende Vor-/Rückschritte, Crop-Geometrie,
+  Hintergrundarbeit, Schließen während eines Auftrags, Dateisperren und Erhalt
+  eines geöffneten Pakets bei Ladefehlern. Ein integrierter Qt-Test durchläuft
+  Import → synthetische Analyse → Prüfung → Speichern → SQLite-Ausgabe.
+- Acht vorhandene Node-Prüfungen (Vorschau/Zoom), `pip check` und vollständige
+  Paketvalidierung erfolgreich. Schema, Fixture und produktive Webdateien
+  bleiben unverändert; keine neue Browser-/Android-Funktion behauptet.
+- Echter Lite/CPU-Durchlauf über den Desktop-Backendpfad mit lokalem kurzem
+  Personenclip: vier Bilder, Qualität `complete`, validiertes Paket gespeichert;
+  Fortschrittsstufen Import/Analyse/Export/Öffnen vorhanden. Persönliche
+  Video-/Pose-/Modell-/Ergebnisdateien wurden nicht eingecheckt oder hochgeladen.
+- Native Windows-Sichtprüfung mit bestehendem 3370-Frame-Lite-Paket:
+  Erstbild pausiert, Wiedergabe mit Skelett und festem Zoom, Qualitätswarnungen,
+  aufeinanderfolgende Einzelbilder 864/865 bei 28,772/28,805 s geprüft.
+  Native Player-Seeks übersprangen anfangs Bilder; separate exakte
+  PyAV-Einzelbilddekodierung korrigiert dies. Qt-Komponententests bestätigen
+  zusätzlich vollständigen Import-/Exportablauf ohne echte Dateidialogeingabe.
+
+Grenzen: kein eigenständiger EXE-Installer, keine geräteübergreifende
+Codec-/Audioabnahme, kein .choreo-Import im Browser und keine Android-Abnahme.
+Ein nativer Modell-/Validierungsaufruf ist nicht sofort abbrechbar; Prüfung
+zwischen Schritten. Google-Download kann bis zur Netzwerk-Zeitüberschreitung
+warten. Qt benötigt zusätzlich Platz für Pakete und lokale Videokopien.
+Manuelle Startpersonauswahl und Crop bleiben Heuristiken und müssen visuell
+geprüft werden. Doppelklickstarter und Bedienung: `analyzer/README.md`.
+
 ## Zoomtoleranz 30 % und getrennte Zeitprüfung (2026-11-22)
 
 - 94 Python-Tests: 82 bisherige plus zwölf Fälle für inklusive 30-%-Grenze und

@@ -11,6 +11,7 @@ import tempfile
 import zipfile
 
 from analyzer.validate import SHARED, validate
+from analyzer.runtime import check_cancel, notify
 
 POINT_COLUMNS = ['frameIndex', 'timestampSeconds', 'landmarkIndex', 'landmarkName',
                  'imageX', 'imageY', 'worldX', 'worldY', 'worldZ',
@@ -28,13 +29,14 @@ def csv_number(value):
     return value
 
 
-def export_poses(package, output_directory):
+def export_poses(package, output_directory, *, cancel=None, progress=None):
     package, output = Path(package).resolve(), Path(output_directory).resolve()
     if output.exists():
         raise ValueError('Ausgabeordner existiert bereits. Einen neuen Ordnernamen wählen.')
     if not output.parent.is_dir():
         raise ValueError('Übergeordneter Ausgabeordner existiert nicht.')
     # Validate hashes, binary records and all paths before consuming any payload.
+    check_cancel(cancel)
     manifest = validate(package)
     registry = json.loads((SHARED/'landmarks.json').read_text(encoding='utf-8'))['landmarks']
     names = [item['name'] for item in registry]
@@ -71,6 +73,9 @@ def export_poses(package, output_directory):
                 database.executemany('INSERT INTO landmark_names VALUES (?, ?)',
                                      [(item['index'], item['name']) for item in registry])
                 for frame_index in range(manifest['frameCount']):
+                    check_cancel(cancel)
+                    if frame_index%100==0:
+                        notify(progress,'points',frame_index/manifest['frameCount'],'Haltungspunkte werden exportiert …')
                     timestamp, = struct.unpack('<d', timestamps.read(8))
                     rows, missing, low, border = [], 0, 0, 0
                     for index, values in enumerate(struct.iter_unpack('<7f', poses.read(924))):
@@ -125,6 +130,7 @@ def export_poses(package, output_directory):
             'rekonstruieren; dazu stehen nur die Warnungen des Originalberichts bereit.\n'
             'Keine Interpolation, neue Modellerkennung oder Veränderung am Paket.\n', encoding='utf-8-sig')
         # Reserve a new destination exclusively; never overwrite an existing folder.
+        check_cancel(cancel)
         output.mkdir()
         moved = []
         try:

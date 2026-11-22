@@ -10,6 +10,8 @@ on:
       - 'tests/test_export_poses.py'
       - 'tests/test_model_comparison.py'
       - 'tests/test_zoom_policy.py'
+      - 'tests/test_gui*.py'
+      - 'Showtanz-Analyzer.cmd'
       - 'tests/preview.test.cjs'
       - 'tests/fixtures/**'
       - '.github/workflows/analyzer.yml'
@@ -31,12 +33,14 @@ jobs:
           python-version: '${{ matrix.python }}'
           cache: pip
           cache-dependency-path: 'analyzer/requirements*.txt'
-      - run: python -m pip install -r analyzer/requirements-analysis.txt
+      - run: python -m pip install -r analyzer/requirements-gui.txt
       - run: python -m pip check
       - run: python -m unittest discover -s tests -p test_analyzer.py -v
       - run: python -m unittest discover -s tests -p test_choreo.py -v
       - run: python -m unittest discover -s tests -p test_export_poses.py -v
       - run: python -m unittest discover -s tests -p test_model_comparison.py -v
       - run: python -m unittest discover -s tests -p test_zoom_policy.py -v
+      - run: python -m unittest discover -s tests -p test_gui_backend.py -v
+      - run: python -m unittest discover -s tests -p test_gui.py -v
       - run: node tests/preview.test.cjs
       - run: python -m analyzer.validate tests/fixtures/synthetic.choreo

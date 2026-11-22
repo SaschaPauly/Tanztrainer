@@ -22,7 +22,12 @@ class PersonSelector:
     Extra detections are hypotheses, never claimed to be proven reflections.
     Ambiguous matches are rejected rather than silently changing identities.
     """
-    def __init__(self):
+    def __init__(self, target_point=None):
+        if target_point is not None:
+            if (len(target_point)!=2 or not all(isinstance(v,(int,float)) and math.isfinite(v) and 0<=v<=1 for v in target_point)):
+                raise ValueError('Startmarkierung muss zwei normalisierte Werte zwischen 0 und 1 enthalten.')
+            target_point=tuple(target_point)
+        self.target_point=target_point
         self.previous = None
         self.last_seen = None
 
@@ -62,13 +67,23 @@ class PersonSelector:
                 candidates.append((index, description))
         if not candidates:
             return Selection(empty_pose(), None, count, 'missing')
-        fresh = self.previous is None or timestamp-self.last_seen > .75
+        fresh = self.previous is None or (self.target_point is None and timestamp-self.last_seen > .75)
         if fresh:
-            ordered = sorted(candidates, key=lambda c: c[1][3], reverse=True)
-            if len(ordered)>1 and ordered[0][1][3] < 1.8*ordered[1][1][3]:
-                return Selection(empty_pose(), None, count, 'ambiguous')
-            chosen = ordered[0]
-            status = 'initial' if self.previous is None else 'reacquired'
+            if self.target_point is not None:
+                def seed_distance(candidate):
+                    return math.hypot(candidate[1][0]-self.target_point[0],candidate[1][1]-self.target_point[1])
+                ordered=sorted(candidates,key=seed_distance)
+                if seed_distance(ordered[0])>max(.08,.6*ordered[0][1][2]):
+                    return Selection(empty_pose(),None,count,'target_unmatched')
+                if len(ordered)>1 and seed_distance(ordered[1])-seed_distance(ordered[0])<.02:
+                    return Selection(empty_pose(),None,count,'ambiguous')
+                chosen,status=ordered[0],'manual'
+            else:
+                ordered = sorted(candidates, key=lambda c: c[1][3], reverse=True)
+                if len(ordered)>1 and ordered[0][1][3] < 1.8*ordered[1][1][3]:
+                    return Selection(empty_pose(), None, count, 'ambiguous')
+                chosen = ordered[0]
+                status = 'initial' if self.previous is None else 'reacquired'
         else:
             def distance(candidate):
                 cx, cy, scale, _ = candidate[1]

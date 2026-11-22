@@ -9,12 +9,13 @@
 
 ## 1. Produktziel
 
-Aktueller 2.0-Stand: Format-PR #4 ist gemergt (`e3975f5`). Phase 2 ergänzt
-als separater PR den lokalen Windows-Python-CLI-Analyzer, ohne Webdateien oder
-`showtanz-choreo 1.0.0` zu verändern. Installation/CLI und Grenzen:
-`analyzer/README.md`; Prüfstand: `docs/TEST_RESULTS.md`. Kein automatischer
-Merge. Nächste 2.0-Schritte: Windows-GUI, danach Browserimport. Personenauswahl
-und Identitätsverfolgung bleiben Folgearbeit.
+Aktueller 2.0-Stand: Format-PR #4, CLI-Analyzer #5 und die Ergänzungen bis #10
+(30-%-Zoom mit gezielter Zeitregel) sind gemergt. Phase 3 ergänzt als separater
+PR die Windows-Oberfläche: lokaler Videoimport, optionale Startpersonauswahl,
+Lite/CPU-Analyse, Skelett-/Zoomprüfung, Qualitätsbericht und ausdrücklicher
+.choreo-/CSV-/SQLite-Export. Keine Änderung am Format `showtanz-choreo 1.0.0`
+oder an der Webanwendung. Start/Bedienung: `analyzer/README.md`; Prüfstand:
+`docs/TEST_RESULTS.md`. Kein automatischer Merge. Browserimport folgt in Phase 4.
 
 Browserbasierter KI-gestützter Showtanztrainer für Karnevals-/Showtanzproben. Ein lokal ausgewähltes Referenzvideo wird mit einer Kameraaufnahme des Übenden kombiniert. Die Anwendung unterstützt das Nachtrainieren, die Haltungsbewertung und eine nachträgliche Betrachtung. Die Ausgangsversion ist **Tanztrainer V12** (`original/Tanztrainer V 12.html`).
 

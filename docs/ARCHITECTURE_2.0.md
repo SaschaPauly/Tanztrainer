@@ -1,5 +1,31 @@
 # Showtanztrainer 2.0 – Architektur und Phasen
 
+## Phase 3: native Windows-Oberfläche (2026-11-22)
+
+`analyzer.gui` (PySide6 Widgets/Multimedia) verwendet `gui_backend` als lokale
+Arbeitssitzung. Import, Analyse, Paketprüfung, Speichern und Punktexport laufen
+in einem kooperativ abbrechbaren QThread. Der vorhandene CLI-Analysepfad bleibt
+maßgeblich: dieselben Posen, echten PTS, Zoomregeln und Export-/Validierungsregeln.
+Normalisiertes Video wird für die Analyse geprüft und kopiert, nicht neu kodiert.
+Optionaler Oberkörper-Startanker ergänzt die konservative Personenauswahl.
+
+`gui_view` zeichnet QVideoSink-Frames und dazu gespeicherte 2D-Punkte anhand
+des dekodierten Mikrosekunden-PTS. Einzelschritte nutzen separaten begrenzten
+PyAV-Decode zum exakten gespeicherten PTS, da QMediaPlayer-Seeks mehrere Bilder
+überspringen können. Posen und Zeiten werden schreibgeschützt memory-gemappt;
+die Vorschau hält nur das aktuelle Bild/33 Punkte. Kein JS/WebEngine notwendig.
+Zoom ist ausschließlich Darstellung; Videos und Koordinaten bleiben vollständig.
+3D-Schätzwerte sind im unveränderten Paket und im separaten Punktexport enthalten.
+
+Import-/Vorschau-/Analyseverzeichnisse gehören der jeweiligen Sitzung. Beim
+Wechsel/Schließen wird der Medienplayer freigegeben; Windows-Dateisperren werden
+asynchron erneut bereinigt. Abbruch prüft zwischen Frames/Kopierblöcken und vor
+atomarem Export, beendet nur den eigenen FFmpeg-Prozess. Ein einzelner nativer
+Modell-/Validatoraufruf bleibt kooperativ und kann nicht sofort unterbrochen werden.
+Modellpakete werden nur auf ausdrücklichen Download-Button von Google geladen;
+keine Video-/Pose-Uploads. Das Paketformat 1.0.0 und die Webanwendung bleiben
+unverändert. Browserimport/Zeitreihenadapter folgen weiterhin in Phase 4.
+
 ## Ergänzung: lokale Skelettvorschau und Modellvergleich
 
 `analyzer.compare_models` verwendet denselben CLI-Analysepfad für Lite, Full

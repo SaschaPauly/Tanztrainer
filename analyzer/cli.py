@@ -10,14 +10,17 @@ import tempfile
 from analyzer.analysis import Quality, Timeline, DEFAULT_ZOOM_UNCERTAIN_PERCENT
 from analyzer.export import export
 from analyzer.pose import PoseEngine, pack_pose
-from analyzer.video import frames, normalize
+from analyzer.video import frames, normalize, copy_prepared
 from analyzer.validate import SPEC
 from analyzer.selection import PersonSelector, Selection
+from analyzer.runtime import check_cancel, notify
 
 
 def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
             max_side=1280, aspect=9/16, overwrite=False, ffmpeg=None,
-            zoom_max_uncertain_percent=DEFAULT_ZOOM_UNCERTAIN_PERCENT, single_person=False, observer=None, engine_factory=PoseEngine):
+            zoom_max_uncertain_percent=DEFAULT_ZOOM_UNCERTAIN_PERCENT, single_person=False,
+            target_point=None, observer=None, engine_factory=PoseEngine,
+            cancel=None, progress=None, prepared_video=None):
     source, output, model = Path(source).resolve(), Path(output).resolve(), Path(model).resolve()
     if not source.is_file() or not model.is_file():
         raise ValueError('Video oder lokale MediaPipe-.task-Modelldatei fehlt.')
@@ -41,19 +44,25 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         quality.warn(f'Zeitliche Abtastung auf höchstens {max_fps:g} fps; kurze Bewegungen können fehlen. Zoom bleibt sicherheitshalber Ganzbild.')
         quality.safe = False
     quality.warn('3D ist eine Modellschätzung relativ zur Hüfte, keine vermessene Bühnenposition.')
-    selector = PersonSelector() if single_person else None
+    selector = PersonSelector(target_point=target_point) if single_person or target_point is not None else None
     selection_counts = Counter()
     extra_detection_frames = 0
     if single_person:
         quality.warn('Bestätigte Einpersonenaufnahme: heuristische Vordergrund-/Zeitverfolgung aktiv. '
                      'Zusatzdetektionen können Spiegelungen oder Fehlkennungen sein; Auswahl visuell prüfen.')
+    if target_point is not None:
+        quality.warn('Manuelle Startauswahl aktiv: Figur anhand des markierten Oberkörpers und zeitlicher Kontinuität verfolgen; Auswahl visuell prüfen.')
     with tempfile.TemporaryDirectory(prefix='.analysis-', dir=output.parent) as directory:
         work = Path(directory)
         payload = {name: work/name.replace('/', '_') for name in (
             'reference/video.mp4', 'reference/poses.bin', 'reference/timestamps.bin',
             'reference/zoom.json', 'reference/quality.json', 'assets/preview.jpg')}
         print('Video lokal importieren und H.264/AAC normalisieren …', file=sys.stderr)
-        info = normalize(source, payload['reference/video.mp4'], ffmpeg)
+        check_cancel(cancel)
+        if prepared_video is None:
+            info = normalize(source, payload['reference/video.mp4'], ffmpeg,cancel=cancel,progress=progress)
+        else:
+            info = copy_prepared(Path(prepared_video),payload['reference/video.mp4'],cancel=cancel,progress=progress)
         video_bytes = payload['reference/video.mp4'].stat().st_size
         timeline, count, last_end = Timeline(max_fps), 0, 0.
         engine = engine_factory(model, backend, quality.warn)
@@ -61,6 +70,7 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         try:
             with payload['reference/poses.bin'].open('wb') as poses, payload['reference/timestamps.bin'].open('wb') as times:
                 for frame, time in iterator:
+                    check_cancel(cancel)
                     if time is not None:
                         duration = getattr(frame, 'duration', 0) or 0
                         last_end = max(last_end, time + float(duration*frame.time_base))
@@ -93,6 +103,9 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
                     times.write(struct.pack('<d', time))
                     quality.observe_pose(time, data, 1 if decision.index is not None else raw_count)
                     count += 1
+                    if count==1 or count%10==0:
+                        notify(progress,'analysis',min(1.,time/info['duration']),
+                               f'{count} Bilder analysiert · {time:.1f} von {info["duration"]:.1f} Sekunden · {engine.backend}')
                     if count % 100 == 0:
                         print(f'{count} Analyseframes; Videoposition {time:.2f} s; {engine.backend}', file=sys.stderr)
         finally:
@@ -101,7 +114,9 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         if not count:
             raise ValueError('Keine dekodierbaren Videoframes.')
         duration = max(info['duration'], last_end)
-        if single_person:
+        check_cancel(cancel)
+        notify(progress,'analysis',1.,'Videoanalyse abgeschlossen.')
+        if selector is not None:
             quality.warn(f'Personenauswahl: {extra_detection_frames} Bilder mit Zusatzdetektionen; '
                          f'{selection_counts["ambiguous"]} mehrdeutig, '
                          f'{selection_counts["jump_rejected"]} Positionssprünge abgewiesen, '
@@ -109,7 +124,8 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         zoom = quality.zoom(info['width'], info['height'], aspect)
         manifest = export(output, payload, title=title, duration=duration, count=count,
                           model=engine.identity, width=info['width'], height=info['height'],
-                          zoom=zoom, audio=info['audio'], quality=quality.report(), overwrite=overwrite)
+                          zoom=zoom, audio=info['audio'], quality=quality.report(), overwrite=overwrite,
+                          cancel=cancel,progress=progress)
         return manifest, quality.report()
 
 
@@ -129,13 +145,21 @@ def main(argv=None):
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--single-person', action='store_true',
                         help='Bestätigte Einpersonenaufnahme: Vordergrundfigur zeitlich verfolgen; Zusatzdetektionen prüfen')
+    def target_value(text):
+        try:
+            values=tuple(float(v) for v in text.split(','))
+            PersonSelector(target_point=values)
+            return values
+        except (ValueError,TypeError):
+            raise argparse.ArgumentTypeError('Startmarkierung als X,Y mit zwei Werten zwischen 0 und 1 angeben.')
+    parser.add_argument('--target-point',type=target_value,help='Oberkörper am Videoanfang markieren, normalisierte Koordinaten X,Y')
     args = parser.parse_args(argv)
     try:
         manifest, quality = analyze(args.video, args.output, args.model, title=args.title,
                                     backend=args.backend, max_fps=args.max_fps, max_side=args.max_side,
                                     aspect=args.aspect, overwrite=args.overwrite, ffmpeg=args.ffmpeg,
                                     zoom_max_uncertain_percent=args.zoom_max_uncertain_percent,
-                                    single_person=args.single_person)
+                                    single_person=args.single_person,target_point=args.target_point)
     except KeyboardInterrupt:
         parser.exit(130, 'Analyse abgebrochen; kein unvollständiger Export.\n')
     except Exception as exc:
