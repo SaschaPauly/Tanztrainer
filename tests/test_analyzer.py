@@ -220,6 +220,21 @@ class MediaTests(unittest.TestCase):
         info = normalize(rotated, self.root/'upright.mp4')
         self.assertEqual((info['width'], info['height']), (120,160))
 
+    def test_subframe_pts_precision_is_preserved(self):
+        source = self.root/'precise-pts.mp4'
+        self.ffmpeg(['-f','lavfi','-i','color=c=blue:s=160x120:r=30:d=1',
+                     '-vf',"settb=1/600,setpts='PTS+if(gte(N,4),3,0)'",
+                     '-c:v','libx264','-pix_fmt','yuv420p','-enc_time_base:v','1:600',
+                     '-fps_mode','passthrough',source])
+        target = self.root/'precise-normalized.mp4'
+        normalize(source, target)
+        before = [time for _, time in frames(source)]
+        after = [time for _, time in frames(target)]
+        self.assertAlmostEqual(before[4]-before[3], 1/30+.005, places=6)
+        self.assertEqual(len(before), len(after))
+        for a, b in zip(before, after):
+            self.assertAlmostEqual(a, b, places=6)
+
     def test_sampling_forces_conservative_zoom(self):
         manifest, _ = self.analyze(max_fps=2)
         self.assertEqual(manifest['frameCount'], 2)
@@ -289,6 +304,25 @@ class MediaTests(unittest.TestCase):
         self.ffmpeg(['-i',self.source,'-vf','setsar=2','-c:v','libx264',source])
         with self.assertRaisesRegex(ValueError, 'Nichtquadratische'):
             normalize(source, self.root/'normalized.mp4')
+
+    def test_unspecified_pixel_aspect_ratio_is_accepted(self):
+        import av
+        from analyzer.video import inspect_video
+        source = self.root/'unspecified-sar.mp4'
+        self.ffmpeg(['-i',self.source,'-vf','setsar=0','-c:v','libx264',source])
+        with av.open(str(source)) as container:
+            self.assertEqual(container.streams.video[0].sample_aspect_ratio, 0)
+        self.assertEqual(inspect_video(source)['width'], 160)
+        self.source = source
+        manifest, _ = self.analyze()
+        self.assertEqual((manifest['video']['width'], manifest['video']['height']), (160,120))
+        validate(self.output)
+        target = self.root/'exported.mp4'
+        with zipfile.ZipFile(self.output) as archive:
+            target.write_bytes(archive.read('reference/video.mp4'))
+        with av.open(str(target)) as container:
+            self.assertEqual(container.streams.video[0].sample_aspect_ratio, 1)
+        self.assertEqual([time for _, time in frames(source)], [time for _, time in frames(target)])
 
     def test_no_clobber_if_output_appears_during_export(self):
         from analyzer.validate import validate as real_validate

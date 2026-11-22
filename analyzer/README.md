@@ -49,7 +49,7 @@ Validierung. Strg+C entfernt temporäre Dateien und erhält vorhandene Ausgaben.
 | `--max-fps 15` | Weniger Inferenzarbeit durch zeitliche Abtastung; Zoom verwendet wegen möglicher verpasster Extrema Ganzbild |
 | `--max-side 1280` | Größte Bildkante nur für Inferenz verkleinern; Originalvideo und Koordinatensystem erhalten |
 | `--aspect 0.5625` | Player-Breite/Höhe (Standard 9:16); reine Zoommetadaten |
-| `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264 und `-fps_mode` erforderlich |
+| `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264, `-fps_mode` und `-enc_time_base:v demux` erforderlich |
 | `--overwrite` | Vorhandenes Paket nach erfolgreicher Analyse atomar ersetzen |
 
 Fortschritt erscheint auf stderr; Ergebnis/Qualitätswarnungen auf stdout.
@@ -63,13 +63,17 @@ exportiert, nicht als erfolgreiche Körpererkennung bezeichnet.
 FFmpeg normalisiert erste Video-/optionale erste Audiospur auf MP4/H.264/
 yuv420p und AAC, wendet Orientierung physisch an und entfernt andere Spuren/
 Metadaten. `-copyts -start_at_zero -fps_mode passthrough` erhält variable
-Frameabstände; der gemeinsame Containerstart wird auf null bezogen, relative
+Frameabstände; `-enc_time_base:v demux` erhält auch Zeitpunkte zwischen den
+nominalen FPS-Rasterpunkten. Der gemeinsame Containerstart wird auf null bezogen, relative
 A/V-Abstände bleiben erhalten. Keine Kürzung, Beschleunigung oder Spiegelung.
 `audio.offsetSeconds=0`, da Verzögerungen im eingebetteten Ton liegen.
 AAC-Neukodierung kann die technische Startmarke um einen Audioframe verschieben;
 der VFR-/Audiotest prüft 30 ms Toleranz. Ungerade H.264-Abmessungen werden mit
 FFmpeg-Fehler abgewiesen, statt stillschweigend Bildgeometrie zu ändern.
 Nichtquadratische Videopixel werden ebenfalls ausdrücklich abgewiesen.
+Eine fehlende Angabe zum Pixelseitenverhältnis (`None` oder `0/1`) ist zulässig:
+Sie wird als quadratische Pixel behandelt und im Paketvideo explizit als `1/1`
+gespeichert, ohne die Bildabmessungen zu verändern.
 
 Analysiert wird das normalisierte Paketvideo. Exportzeiten sind
 `frame.pts * frame.time_base` (Float64), niemals Frameindex/FPS oder Laufzeit.
