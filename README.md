@@ -1,5 +1,13 @@
 # Karnevals-Showtanz – Codex-Übergabe (Version 12)
 
+**Neue PC-Oberfläche (2.0, Phase 3):** Nach einmaliger Installation von
+`analyzer/requirements-gui.txt` per Doppelklick auf `Showtanz-Analyzer.cmd`
+starten. Video importieren → mit Lite analysieren → Skelett/Zoom/Qualität
+prüfen → `.choreo` speichern. Vorhandene Pakete lassen sich ohne Neuanalyse
+öffnen; CSV-/SQLite-Ausgabe ist integriert. [Einrichtung und Bedienung](analyzer/README.md).
+Die bestehende GitHub-Pages-Anwendung bleibt unverändert; `.choreo`-Browserimport
+folgt separat in Phase 4.
+
 **Status:** Autozoom als Kandidat für v1.1.0 (noch keine Veröffentlichung). V12-Funktionen mit ergänztem unabhängigem Kamera-Schnelltest und lokaler Kameradiagnose. Die vorhandene Pose-Erkennung wird zusätzlich für eine statische Video-Voranalyse verwendet; Haltungsbewertung und Countdown bleiben erhalten. Automatisierte Desktop-Browsertests bestehen; **die Android-Geräteabnahme steht aus** (siehe `docs/TEST_RESULTS.md`).
 
 ## Automatischer Videozoom

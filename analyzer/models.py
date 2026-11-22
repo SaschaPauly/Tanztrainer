@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 from urllib.request import urlopen
 import zipfile
+from analyzer.runtime import check_cancel, notify
 
 MODEL_NAMES = ('lite', 'full', 'heavy')
 
@@ -14,10 +15,11 @@ def model_path(directory, name):
     return Path(directory)/f'pose_landmarker_{name}.task'
 
 
-def download_models(directory):
+def download_models(directory, names=MODEL_NAMES, *, cancel=None, progress=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
-    for name in MODEL_NAMES:
+    for name in names:
+        check_cancel(cancel)
         target = model_path(directory, name)
         if target.is_file():
             if not zipfile.is_zipfile(target):
@@ -31,14 +33,17 @@ def download_models(directory):
             size = 0
             with urlopen(url, timeout=60) as response, path.open('wb') as output:
                 while block := response.read(1024*1024):
+                    check_cancel(cancel)
                     size += len(block)
                     if size > 100*1024*1024:
                         raise ValueError('Modelldownload überschreitet 100 MiB.')
                     output.write(block)
+                    notify(progress,'download',None,f'Google-Modell {name}: {size/1024/1024:.1f} MiB geladen …')
             if not zipfile.is_zipfile(path):
                 raise ValueError(f'Ungültiges Modellbundle: {name}')
             if target.exists():
                 raise FileExistsError(target)
+            check_cancel(cancel)
             path.rename(target)
 
 

@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## Showtanztrainer 2.0 – Phase 3: Windows-Oberfläche – 2026-11-22 (PR zur Prüfung)
+- Native PySide6-Oberfläche und Doppelklickstarter: lokaler Videoimport, Lite-Download auf ausdrücklichen Aufruf, CPU/30-%-Standard, optionale Startperson-Markierung, Analyse im Hintergrund und kooperativer Abbruch.
+- Validierte vorhandene Pakete ohne Neuanalyse öffnen; native Videovorschau mit farbigen Haltungspunkten, festem Zoom, exakten Einzelbildschritten und Qualitätsbericht. CSV-/SQLite-Ausgabe integriert.
+- Normalisiertes Importvideo ohne erneute Kodierung wiederverwenden; Posen/PTS für die Vorschau speicherschonend einblenden. Paket erst nach Sichtprüfung ausdrücklich speichern, bestehende Ausgaben atomar schützen und temporäre Ressourcen freigeben.
+- GUI-/Abbruch-/Auswahltests, Windows-CI und Bedienungsanleitung ergänzt. Webanwendung und .choreo-Schema unverändert; kein automatischer Merge.
+
 ## Zoomtoleranz 30 % und gezielte Zeitregel – 2026-11-22 (PR zur Prüfung)
 - Standard für Analyse und Modellvergleich von 10 auf einschließlich 30 % unsichere Bilder erhöhen. Längere lokale Gelenkunsicherheit bei zuverlässigem Rumpf zulassen; Kern-/Zuordnungsverlust weiterhin ab über 0,5 s zum Ganzbild-Fallback führen lassen.
 - Schulter-/Hüftbasis anhand tatsächlicher gespeicherter Punkte prüfen, getrennte Zeitspannen dokumentieren. Zuverlässige Extrema und Randreserve erhalten; keine Änderung an Haltungspunkten, Erkennungsgrenzen oder Bewertung.

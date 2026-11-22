@@ -1,10 +1,84 @@
-# Showtanz-Analyzer – Phase 2
+# Showtanz-Analyzer – Phase 2 und 3
 
 Eigenständige lokale Windows-Python-CLI: Video importieren, MediaPipe Pose
 Landmarker mit 33 Punkten ausführen und ein validiertes `showtanz-choreo 1.0.0`
-schreiben. Lokale Skelettvorschau/Modellvergleich sind verfügbar; eine vollständige
-Windows-GUI folgt separat. Browserimport folgt in Phase 4. Die Webanwendung bleibt
+schreiben. Phase 3 ergänzt eine native Windows-Oberfläche mit Prüfung vor dem
+Speichern. Browserimport folgt in Phase 4. Die Webanwendung bleibt
 unverändert.
+
+## Windows-Oberfläche: Einrichtung und Start
+
+Python 3.12 oder 3.13 (64 Bit) und eine vorhandene `.venv` vorausgesetzt:
+
+```powershell
+.\.venv\Scripts\python -m pip install -r analyzer/requirements-gui.txt
+.\.venv\Scripts\python -m analyzer.gui
+```
+
+Danach genügt ein Doppelklick auf **`Showtanz-Analyzer.cmd`** in der
+Repositorywurzel. Das Fenster startet ohne Konsole. Bei Startproblemen den
+obigen Python-Befehl in PowerShell verwenden, um die Fehlermeldung zu sehen.
+Es ist eine Python-Desktopanwendung; ein eigenständig gebündelter EXE-Installer
+ist nicht Bestandteil dieser Phase. Die zusätzlichen Qt-Pakete sind groß;
+die bestehende CLI benötigt sie weiterhin nicht.
+
+### Bedienung
+
+1. **Video importieren**: lokale Datei wählen. Der Import bereitet H.264/AAC
+   im Hintergrund vor; Originaldatei bleibt erhalten. Das erste Bild erscheint
+   stumm und pausiert. Abspielen/Pause und Zeitleiste dienen zur Sichtprüfung.
+2. Unter **Lokales Modell** Lite wählen; Standard ist
+   `models/pose_landmarker_lite.task`. Falls es fehlt, lädt ausschließlich der
+   ausdrücklich betätigte Button **Lite-Modell von Google herunterladen** das
+   versionierte Google-Bundle. Keine Modell-/Videodownloads beim Programmstart.
+3. **Auf dem Video ist nur eine Person sichtbar** nur bestätigen, wenn dies
+   für die gesamte Aufnahme gilt. Optional **Person am Videoanfang markieren**
+   aktivieren und im ersten Bild auf die Mitte zwischen Schultern und Hüfte
+   klicken. Währenddessen bleibt die Wiedergabe gesperrt; erneut ausschalten
+   entfernt die Markierung. Die Auswahl ist ein heuristischer Startanker,
+   keine garantierte Identitätserkennung. Nach längerer Lücke wird bei einer
+   markierten Person nicht ungeprüft zur größten anderen Figur gewechselt.
+4. **Analyse starten**. Standard: Lite (sofern als Modell gewählt), CPU,
+   alle Bilder, Analyse-Bildkante 1280, 30 % Zoomtoleranz und die bestehende
+   getrennte Rumpf-/Verdeckungszeitregel. Weitere Einstellungen bewusst
+   freischalten. Zeitliche Abtastung reduziert Rechenarbeit, erzwingt aber
+   weiterhin Ganzbild. GPU/auto nutzen den vorhandenen CPU-Fallback.
+5. **Prüfen**: Video mit farbigen Haltungspunkten ansehen; **Fester Zoom**
+   und **Haltungspunkte** lassen sich unabhängig umschalten. Grün ≥ 0,65,
+   Gelb ≥ 0,5, Rot < 0,5 (Minimum aus Visibility und Presence). Fehlende
+   Punkte bleiben unsichtbar; es werden keine Werte erfunden/interpoliert.
+   Einzelbildbuttons dekodieren exakt den gespeicherten Videotimestamp im
+   Hintergrund; normale Wiedergabe ordnet Posen am dekodierten Frame-PTS zu.
+   Warnungen, fehlende Punkte, Toleranz und Ganzbild-Fallback im Bericht lesen.
+6. **.choreo speichern**: erst jetzt Ziel wählen. Vollständige Prüfung und
+   atomare Veröffentlichung schützen vor unvollständigen Paketen. Der normale
+   Windows-Speicherdialog fragt vor dem Ersetzen einer bestehenden Datei.
+   Ein bereits geöffnetes Paket bitte unter anderem Namen speichern.
+7. Optional **Haltungspunkte als CSV / SQLite ausgeben**: einen **neuen**
+   Ordnernamen wählen. CSV, SQLite und Bericht enthalten dieselben 2D- und
+   geschätzten hüftrelativen 3D-Werte; keine erneute Analyse.
+
+Mit **.choreo öffnen** kann auch das bereits erstellte Lite-Ergebnis direkt
+geprüft werden. Dabei sind weder Modell noch Originalvideo erforderlich.
+Der Titel und die Einstellungen gelten für neue Analysen; beim Speichern
+eines geöffneten Pakets werden dessen Metadaten unverändert übernommen.
+
+**Abbrechen** fordert einen kooperativen Abbruch an. Ein laufender einzelner
+Modell-/Prüfschritt wird noch beendet; beim Modelldownload kann die Netzwerk-
+Zeitüberschreitung bis 60 s benötigen. Schließen während eines Auftrags fordert
+ebenfalls Abbruch an und wartet auf Ressourcenfreigabe. Temporäre Videokopien
+liegen im lokalen Windows-Temp-Ordner und werden bei regulärem Abschluss/
+Schließen entfernt; ein Prozessabsturz kann temporäre Dateien hinterlassen.
+Genügend freien lokalen Speicher für Originalkopie, Ergebnis und Vorschau
+einplanen. Auf fehlende Windows-Codecs/Audioausgabe weist die Vorschau hin;
+erfolgreiche automatisierte Tests ersetzen keine Prüfung anderer PCs.
+
+Automatische GUI-Prüfung (ohne Netzwerk/Modell):
+
+```powershell
+.\.venv\Scripts\python -m unittest discover -s tests -p test_gui_backend.py -v
+.\.venv\Scripts\python -m unittest discover -s tests -p test_gui.py -v
+```
 
 ## Windows-Installation
 
@@ -54,6 +128,7 @@ Validierung. Strg+C entfernt temporäre Dateien und erhält vorhandene Ausgaben.
 | `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264, `-fps_mode` und `-enc_time_base:v demux` erforderlich |
 | `--overwrite` | Vorhandenes Paket nach erfolgreicher Analyse atomar ersetzen |
 | `--single-person` | Nach ausdrücklicher Bestätigung einer Einpersonenaufnahme: Vordergrundfigur zeitlich verfolgen, Zusatzdetektionen konservativ behandeln |
+| `--target-point 0.5,0.5` | Optionaler Startanker am Oberkörper im ersten Bild; normiertes X,Y im ganzen Originalbild; aktiviert konservative Personenauswahl |
 
 Fortschritt erscheint auf stderr; Ergebnis/Qualitätswarnungen auf stdout.
 Exitcodes: 0 = gültiger Export, auch bei `partial`; 1 = Import-/Modell-/Datei-/
