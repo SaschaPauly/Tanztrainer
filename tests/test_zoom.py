@@ -1,5 +1,6 @@
 """Real Chromium decoding, synthetic poses. Does not certify MediaPipe or Android."""
 import subprocess
+import os
 import tempfile
 import unittest
 import test_camera as camera_tests
@@ -27,7 +28,7 @@ class ZoomTests(unittest.TestCase):
         self.page.locator('#crop').select_option('full')
         with tempfile.TemporaryDirectory() as folder:
             path=folder+'/clip.mp4'
-            subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-f','lavfi','-i',
+            subprocess.run([os.environ.get('FFMPEG_PATH','ffmpeg'),'-hide_banner','-loglevel','error','-f','lavfi','-i',
                             'color=c=blue:s='+size+':r=10','-t','1.2','-c:v','libx264',
                             '-pix_fmt','yuv420p','-movflags','+faststart',path],check=True)
             with open(path,'rb') as clip_file:

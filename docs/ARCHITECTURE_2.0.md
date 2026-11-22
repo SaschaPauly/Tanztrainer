@@ -1,5 +1,23 @@
 # Showtanztrainer 2.0 – Architektur und Phasen
 
+## Phase 4: Browserimport und Referenzadapter (2026-11-22)
+
+`choreo-worker` lädt den gemeinsamen Vertrag lokal und prüft mit `choreo-core`
+ZIP, striktes JSON, CRC/SHA-256, Binär- und Qualitätskonsistenz. `choreo-media`
+prüft AVC-/AAC-Beschreibungen und Geometrie vor separater Browser-Decoderprobe.
+Erst danach veröffentlicht `choreo.open` die lokale Sitzung. Abbruch/Fehler
+erhält die bisherige Referenz. Keine externen JS-/ZIP-Abhängigkeiten/Uploads.
+
+`Choreo.Reference` liest übertragene DataViews per binärer PTS-Suche.
+`app.referencePose` wählt Paketdaten oder Rohvideo-Inferenz für Training und
+Nachanalyse. Paketzoom betrifft nur Darstellung; Bewertung nutzt volle
+Bildgeometrie, Missing-Daten und beide Konfidenzen. Tonversatz wird separat
+lokal geroutet, ohne Änderung der Posezeiten. Kamera/Heuristik erhalten.
+Details: [Browserimport](CHOREO_BROWSER.md).
+
+Die folgenden Abschnitte halten den damaligen Phase-1/2/3-Stand fest. Der
+Browserimport ist nun implementiert; mobile Hardwareabnahme weiterhin offen.
+
 ## Phase 3: native Windows-Oberfläche (2026-11-22)
 
 `analyzer.gui` (PySide6 Widgets/Multimedia) verwendet `gui_backend` als lokale

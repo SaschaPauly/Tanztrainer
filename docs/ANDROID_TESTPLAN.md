@@ -1,5 +1,23 @@
 # Android-Kameratest und Fehlerdiagnose
 
+## Phase 4 – .choreo-Geräteabnahme (noch offen)
+
+Aktuellen PR-Stand über HTTPS direkt in Chrome auf einem echten Android-Gerät
+öffnen; `shared/` mit bereitstellen. Kleine gültige Pakete und ein typisches
+Zwei-Minuten-Paket importieren. Zeit, Speicher, UI-Reaktion und Abbruch prüfen.
+Beschädigte/zu große Pakete müssen erklärt werden, die bisherige Referenz
+bleibt erhalten. Wiederholtes Laden/Schließen darf Speicher nicht aufsummieren.
+
+Vorschau ohne Modell/Kamera starten; danach Modell laden, Kamera und Training
+mit Paketposen, festem Zoom ein/aus, Hoch-/Querformat, Kameraspiegelung,
+gespiegeltem Nachtanzen und Freistellung prüfen. Originalton, positiven/
+negativen Offset und stumme Pakete anhören; Pause/Seek/Neustart und gespeicherte
+Splitbildaufnahme vergleichen. Fehlende Gelenke/PTS-Lücken dürfen keine
+erfundene Bewertung erzeugen. Aufnahme/Nachanalyse/Bildpaare prüfen, danach
+zu Rohvideo wechseln und Ausschnitt/Autozoom erneut prüfen. Tabwechsel/Stop/
+Pagehide müssen Kamera und ggf. Import stoppen. Layoutsimulation am PC ist
+keine Android-Abnahme. Ergebnisse gemäß Protokoll unten lokal dokumentieren.
+
 ## Voraussetzungen
 
 1. App über eine **HTTPS**-Adresse im aktuellen Chrome für Android öffnen (nicht in WhatsApp/anderen In-App-Browsern).

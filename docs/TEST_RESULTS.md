@@ -1,5 +1,37 @@
 # Teststatus
 
+## Phase 4 – Browserimport und Referenzadapter (2026-11-22)
+
+- Windows/Chrome: 30 gemeinsame JS-Konformitätsfälle über dieselben Python-
+  Mutationen bestanden; 16 neue Node-Fälle für ZIP/JSON/Medien/PTS/Adapter und
+  acht vorhandene Node-Fälle bestanden. Kein Schema-/Fixturewechsel.
+- Neun neue echte Browserfälle: Workerimport und DEFLATE, sichere Textanzeige,
+  ungültiges Ersetzen mit Erhalt der Referenz, Abbruch/Pagehide und Pufferfreigabe,
+  Größenlimit, Vorschau ohne Modell/Kamera/externe Requests einschließlich
+  Frame-Callback-Fallback, Paketzoom/volle Geometrie, Training/Recording/
+  Nachanalyse ohne Referenzinferenz, Rohvideo-Rückwechsel, positiver/negativer
+  Tonversatz und stumme Pakete. Modell/Kamera synthetisch, Decoder/Worker echt.
+- Vorhandene 13 Kamera- und sechs Autozoom-Browserfälle in getrennten Suiten
+  erfolgreich. Im gemeinsamen Windows-Gesamtlauf (174 Fälle einschließlich
+  bisheriger 116 Analyzer-/GUI- und 30 Konformitätsfälle) traten nach einigen
+  Kamerafällen Fake-Camera-`NotFoundError`/Timeouts auf. Separate unveränderte
+  Kamera-/Zoomläufe bestehen; dieser Gesamtaufruf wird nicht als bestanden
+  ausgegeben. CI führt die Suiten als getrennte Prozesse aus.
+- Lokaler Smoke mit vorhandenem 3370-Frame-/112,37-s-Lite-Paket: Import ca.
+  0,32 s, Wiedergabe/Zoom ohne neue Inferenz, keine JS-Fehler oder externen
+  Requests. Desktop und 390×844-Layout visuell geprüft, kein horizontaler
+  Überlauf. Persönliche Bilder/Pakete wurden nicht eingecheckt/hochgeladen.
+- Syntax-/Whitespaceprüfungen sauber. Neuer Browser-CI-Workflow prüft Chromium
+  unter Linux; bestehende Windows-Analyzer-CI bleibt erhalten. Original-V12,
+  Formatvertrag und Analyzer-Code unverändert.
+
+Grenzen: keine echte Android-Abnahme, keine geräteübergreifende Speicher-/Audio-
+Latenzmessung, kein Nachweis realer Trainingsqualität. Browsergrenzen 64 MiB
+Archiv/Eintrag und 96 MiB Inhalte sind keine RAM-Spitzengarantie. Zeitlücken
+über 0,2 s werden nicht interpoliert; 3D bleibt Modellschätzung. Neue Bewertung,
+Beat-Erkennung und Kameralatenzkalibrierung sind nicht Teil dieser Phase.
+Bedienung, Regeln und Reproduktion: [Browserimport](CHOREO_BROWSER.md).
+
 ## Phase 3 – native Windows-Oberfläche (2026-11-22)
 
 Umgebung: Windows, Python 3.13, PySide6 6.12.0, vorhandene gepinnte

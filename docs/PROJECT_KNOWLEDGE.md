@@ -15,7 +15,10 @@ PR die Windows-Oberfläche: lokaler Videoimport, optionale Startpersonauswahl,
 Lite/CPU-Analyse, Skelett-/Zoomprüfung, Qualitätsbericht und ausdrücklicher
 .choreo-/CSV-/SQLite-Export. Keine Änderung am Format `showtanz-choreo 1.0.0`
 oder an der Webanwendung. Start/Bedienung: `analyzer/README.md`; Prüfstand:
-`docs/TEST_RESULTS.md`. Kein automatischer Merge. Browserimport folgt in Phase 4.
+`docs/TEST_RESULTS.md`. Phase 3 ist inzwischen als PR #11 gemergt. Phase 4
+ergänzt Browserimport/Referenzadapter: nur Kamera-Inferenz, Paketzoom, Qualität,
+Tonversatz und Rohvideo-Fallback. Bedienung/Limits: `docs/CHOREO_BROWSER.md`.
+Kein automatischer Merge/Deployment; Android-Hardwareabnahme weiterhin offen.
 
 Browserbasierter KI-gestützter Showtanztrainer für Karnevals-/Showtanzproben. Ein lokal ausgewähltes Referenzvideo wird mit einer Kameraaufnahme des Übenden kombiniert. Die Anwendung unterstützt das Nachtrainieren, die Haltungsbewertung und eine nachträgliche Betrachtung. Die Ausgangsversion ist **Tanztrainer V12** (`original/Tanztrainer V 12.html`).
 

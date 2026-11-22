@@ -3,8 +3,9 @@
 Eigenständige lokale Windows-Python-CLI: Video importieren, MediaPipe Pose
 Landmarker mit 33 Punkten ausführen und ein validiertes `showtanz-choreo 1.0.0`
 schreiben. Phase 3 ergänzt eine native Windows-Oberfläche mit Prüfung vor dem
-Speichern. Browserimport folgt in Phase 4. Die Webanwendung bleibt
-unverändert.
+Speichern. Phase 4 ergänzt den lokalen `.choreo`-Import im Tanztrainer:
+[Browser-Bedienung und Limits](../docs/CHOREO_BROWSER.md). CLI, GUI und
+Dateiformat bleiben dabei unverändert.
 
 ## Windows-Oberfläche: Einrichtung und Start
 

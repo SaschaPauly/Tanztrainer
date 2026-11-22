@@ -5,8 +5,11 @@
 starten. Video importieren → mit Lite analysieren → Skelett/Zoom/Qualität
 prüfen → `.choreo` speichern. Vorhandene Pakete lassen sich ohne Neuanalyse
 öffnen; CSV-/SQLite-Ausgabe ist integriert. [Einrichtung und Bedienung](analyzer/README.md).
-Die bestehende GitHub-Pages-Anwendung bleibt unverändert; `.choreo`-Browserimport
-folgt separat in Phase 4.
+**Neu in Phase 4:** `.choreo` im Tanztrainer lokal öffnen, Qualitätsbericht und
+festen Zoom übernehmen und mit gespeicherten Referenzposen trainieren. Nur die
+Kamera wird neu analysiert. Normaler Videoimport bleibt verfügbar.
+[Bedienung, Browserlimits und Tests](docs/CHOREO_BROWSER.md). Kein automatischer
+Merge/Deployment; Android-Geräteabnahme weiterhin offen.
 
 **Status:** Autozoom als Kandidat für v1.1.0 (noch keine Veröffentlichung). V12-Funktionen mit ergänztem unabhängigem Kamera-Schnelltest und lokaler Kameradiagnose. Die vorhandene Pose-Erkennung wird zusätzlich für eine statische Video-Voranalyse verwendet; Haltungsbewertung und Countdown bleiben erhalten. Automatisierte Desktop-Browsertests bestehen; **die Android-Geräteabnahme steht aus** (siehe `docs/TEST_RESULTS.md`).
 
