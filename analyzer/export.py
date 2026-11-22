@@ -13,7 +13,7 @@ def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, allow_nan=False, indent=2)+'\n', encoding='utf-8')
 
 
-def export(output, payload, *, title, duration, count, model, width, height, zoom, audio, quality, overwrite=False):
+def export(output, payload, *, title, duration, count, model, width, height, zoom, audio, quality, overwrite=False, audio_offset=0):
     write_json(payload['reference/zoom.json'], zoom)
     write_json(payload['reference/quality.json'], quality)
     files = {}
@@ -26,7 +26,7 @@ def export(output, payload, *, title, duration, count, model, width, height, zoo
     manifest = dict(format='showtanz-choreo', version='1.0.0', title=title,
                     durationSeconds=duration, frameCount=count, model=model,
                     video=dict(width=width, height=height), zoom=zoom,
-                    audio=dict(source='reference/video.mp4' if audio else 'none', offsetSeconds=0),
+                    audio=dict(source='reference/video.mp4' if audio else 'none', offsetSeconds=audio_offset),
                     coordinateSystem=SCHEMA['properties']['coordinateSystem']['const'],
                     layout=SCHEMA['properties']['layout']['const'], files=files)
     if sum(f['size'] for f in files.values()) > SPEC['limits']['totalUncompressedBytes']:

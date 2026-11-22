@@ -11,6 +11,7 @@ import time
 import zipfile
 
 from analyzer.cli import analyze
+from analyzer.analysis import DEFAULT_ZOOM_UNCERTAIN_PERCENT
 from analyzer.models import MODEL_NAMES, download_models, model_path
 from analyzer.pose import PoseEngine
 from analyzer.preview import write_preview
@@ -67,7 +68,8 @@ def pose_metrics(package, diagnostics):
 
 
 def compare_models(source, output_directory, models_directory, *, single_person=False,
-                   backend='cpu', max_fps=0, max_side=1280, engine_factory=PoseEngine):
+                   backend='cpu', max_fps=0, max_side=1280,
+                   zoom_max_uncertain_percent=DEFAULT_ZOOM_UNCERTAIN_PERCENT, engine_factory=PoseEngine):
     source, output = Path(source).resolve(), Path(output_directory).resolve()
     if output.exists():
         raise ValueError('Vergleichsordner existiert bereits. Einen neuen Namen wählen.')
@@ -79,6 +81,7 @@ def compare_models(source, output_directory, models_directory, *, single_person=
             raise ValueError(f'Modell fehlt: {path}; Modelle vorher ausdrücklich herunterladen.')
     summary = dict(format='showtanz-model-comparison',version='1.0.0',maxFps=max_fps,
                    maxSide=max_side,singlePerson=single_person,requestedBackend=backend,
+                   zoomMaxUncertainPercent=zoom_max_uncertain_percent,
                    limitations='Konfidenz und Abdeckung sind keine gemessene Genauigkeit. '
                    'Personenauswahl ist heuristisch; Zusatzdetektionen können Spiegelungen oder Fehlkennungen sein.', models={})
     with tempfile.TemporaryDirectory(prefix='.comparison-', dir=output.parent) as directory:
@@ -99,7 +102,7 @@ def compare_models(source, output_directory, models_directory, *, single_person=
             package = work/f'{name}.choreo'
             analyze(source, package, path, backend=backend, max_fps=max_fps,
                     max_side=max_side, single_person=single_person, observer=observe,
-                    engine_factory=factory)
+                    zoom_max_uncertain_percent=zoom_max_uncertain_percent,engine_factory=factory)
             elapsed = time.perf_counter()-started
             metrics, frame_tables[name] = pose_metrics(package,diagnostics)
             metrics.update(elapsedSeconds=elapsed,backendAtEnd=created[0].backend)
@@ -144,13 +147,15 @@ def main(argv=None):
     parser.add_argument('--backend',choices=('cpu','auto','gpu'),default='cpu')
     parser.add_argument('--max-fps',type=float,default=0,help='0: alle Frames, sonst identische zeitliche Abtastung je Modell')
     parser.add_argument('--max-side',type=int,default=1280)
+    parser.add_argument('--zoom-max-uncertain-percent',type=float,default=DEFAULT_ZOOM_UNCERTAIN_PERCENT)
     parser.add_argument('--download-models',action='store_true',help='Offizielle Modelle ausdrücklich von Google laden')
     args=parser.parse_args(argv)
     try:
         if args.download_models:
             download_models(args.models_dir)
         compare_models(args.video,args.output_directory,args.models_dir,single_person=args.single_person,
-                       backend=args.backend,max_fps=args.max_fps,max_side=args.max_side)
+                       backend=args.backend,max_fps=args.max_fps,max_side=args.max_side,
+                       zoom_max_uncertain_percent=args.zoom_max_uncertain_percent)
     except KeyboardInterrupt:
         parser.exit(130,'Modellvergleich abgebrochen.\n')
     except Exception as exc:

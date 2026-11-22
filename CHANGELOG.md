@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## Zoomtoleranz 30 % und gezielte Zeitregel – 2026-11-22 (PR zur Prüfung)
+- Standard für Analyse und Modellvergleich von 10 auf einschließlich 30 % unsichere Bilder erhöhen. Längere lokale Gelenkunsicherheit bei zuverlässigem Rumpf zulassen; Kern-/Zuordnungsverlust weiterhin ab über 0,5 s zum Ganzbild-Fallback führen lassen.
+- Schulter-/Hüftbasis anhand tatsächlicher gespeicherter Punkte prüfen, getrennte Zeitspannen dokumentieren. Zuverlässige Extrema und Randreserve erhalten; keine Änderung an Haltungspunkten, Erkennungsgrenzen oder Bewertung.
+- Zoom vorhandener Pakete ohne neue Modellerkennung berechnen; volle Frameabdeckung prüfen, Originaldaten und Audiooffset erhalten. Vorschau kann mit aktivem Lite-Zoom starten.
+- Zwölf neue Regressionstests, Windows-CI und Dokumentation ergänzt. Schema und veröffentlichte Webanwendung unverändert; kein automatischer Merge.
 ## Skelettvorschau und Modellvergleich – 2026-11-22 (PR zur Prüfung)
 - Lite, Full und Heavy auf identischen Zeitpunkten lokal vergleichen; synchronisierte Offline-Skelettvorschau mit farbigen Konfidenzen, Einzelbildschritten, Zusatzdetektionen und Zoomdarstellung.
 - Expliziter Einpersonenmodus wählt eine deutliche Vordergrundfigur und prüft zeitliche Kontinuität. Mehrdeutige Kandidaten/Positionssprünge bleiben fehlend; Zusatzdetektionen werden nicht als nachgewiesene zweite Person gewertet.

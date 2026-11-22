@@ -7,7 +7,7 @@ import struct
 import sys
 import tempfile
 
-from analyzer.analysis import Quality, Timeline
+from analyzer.analysis import Quality, Timeline, DEFAULT_ZOOM_UNCERTAIN_PERCENT
 from analyzer.export import export
 from analyzer.pose import PoseEngine, pack_pose
 from analyzer.video import frames, normalize
@@ -17,7 +17,7 @@ from analyzer.selection import PersonSelector, Selection
 
 def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
             max_side=1280, aspect=9/16, overwrite=False, ffmpeg=None,
-            zoom_max_uncertain_percent=10, single_person=False, observer=None, engine_factory=PoseEngine):
+            zoom_max_uncertain_percent=DEFAULT_ZOOM_UNCERTAIN_PERCENT, single_person=False, observer=None, engine_factory=PoseEngine):
     source, output, model = Path(source).resolve(), Path(output).resolve(), Path(model).resolve()
     if not source.is_file() or not model.is_file():
         raise ValueError('Video oder lokale MediaPipe-.task-Modelldatei fehlt.')
@@ -91,7 +91,7 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
                         observer(time, result, decision)
                     poses.write(data)
                     times.write(struct.pack('<d', time))
-                    quality.observe(time, missing, points, 1 if decision.index is not None else raw_count)
+                    quality.observe_pose(time, data, 1 if decision.index is not None else raw_count)
                     count += 1
                     if count % 100 == 0:
                         print(f'{count} Analyseframes; Videoposition {time:.2f} s; {engine.backend}', file=sys.stderr)
@@ -123,8 +123,8 @@ def main(argv=None):
     parser.add_argument('--max-fps', type=float, default=0, help='0: jeder Frame (Standard); sonst zeitliche Obergrenze')
     parser.add_argument('--max-side', type=int, default=1280, help='Maximale Bildkante nur für Inferenz')
     parser.add_argument('--aspect', type=float, default=9/16, help='Bevorzugtes Player-Breite/Höhe-Verhältnis')
-    parser.add_argument('--zoom-max-uncertain-percent', type=float, default=10,
-                        help='Maximaler Anteil unsicherer Analysebilder für festen Zoom (Standard: 10 Prozent)')
+    parser.add_argument('--zoom-max-uncertain-percent', type=float, default=DEFAULT_ZOOM_UNCERTAIN_PERCENT,
+                        help='Maximaler Anteil unsicherer Analysebilder für festen Zoom (Standard: 30 Prozent)')
     parser.add_argument('--ffmpeg', type=Path, help='Eigene FFmpeg-Programmdatei statt gebündelter Version')
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--single-person', action='store_true',

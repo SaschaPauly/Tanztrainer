@@ -50,7 +50,7 @@ Validierung. Strg+C entfernt temporäre Dateien und erhält vorhandene Ausgaben.
 | `--max-fps 15` | Weniger Inferenzarbeit durch zeitliche Abtastung; Zoom verwendet wegen möglicher verpasster Extrema Ganzbild |
 | `--max-side 1280` | Größte Bildkante nur für Inferenz verkleinern; Originalvideo und Koordinatensystem erhalten |
 | `--aspect 0.5625` | Player-Breite/Höhe (Standard 9:16); reine Zoommetadaten |
-| `--zoom-max-uncertain-percent 10` | Anteil unsicherer Analysebilder für festen Zoom; Standard 10 %, einschließlich der Grenze. 0 stellt die strenge Regel wieder her |
+| `--zoom-max-uncertain-percent 30` | Anteil unsicherer Analysebilder für festen Zoom; Standard 30 %, einschließlich der Grenze. 0 stellt die strenge Regel wieder her |
 | `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264, `-fps_mode` und `-enc_time_base:v demux` erforderlich |
 | `--overwrite` | Vorhandenes Paket nach erfolgreicher Analyse atomar ersetzen |
 | `--single-person` | Nach ausdrücklicher Bestätigung einer Einpersonenaufnahme: Vordergrundfigur zeitlich verfolgen, Zusatzdetektionen konservativ behandeln |
@@ -107,7 +107,7 @@ zusammengefasst. Diese Spanne ist kein durchgehendes Fehlerintervall.
 Ein fester Zoom umfasst die Grenzen aller zuverlässigen 33-Punkte-Posen über
 die komplette Choreografie, mit 8 % Reserve und weiteren 5 % oberhalb des
 Kopfes. Zum Zielseitenverhältnis wird nur erweitert, gegebenenfalls mit Balken.
-Bis einschließlich **10 % unsichere Analysebilder** sind standardmäßig
+Bis einschließlich **30 % unsichere Analysebilder** sind standardmäßig
 zulässig. Ein Bild zählt einmal als unsicher, wenn Punkte fehlen, mindestens
 eine Konfidenz unter 0,5 liegt oder die Personenzuordnung nicht eindeutig ist.
 Die Prozentzahl bezieht sich auf Bilder, nicht auf Gelenke, Videodauer oder
@@ -116,10 +116,18 @@ zusammen als ein unsicheres Bild. Alle zuverlässigen Punkte aus diesen Bildern
 bleiben in der Bewegungsvereinigung enthalten; es werden keine Extrema getrimmt.
 Bei tolerierten unsicheren Bildern kommen weitere 5 % Randreserve dazu.
 
-Über 10 %, bei einer zusammenhängenden Erkennungsunsicherheit über 0,5 s,
-Bildrandnähe, Zeitlücken über 0,5 s oder zeitlichem Sampling gilt weiterhin
-Ganzbild mit Warnung. Die Lückendauer umfasst die begrenzenden zuverlässigen
-Zeitpunkte, soweit vorhanden. `--zoom-max-uncertain-percent` erlaubt eine
+Die Zeitregel unterscheidet **Teilunsicherheit** von **Kern-/Zuordnungsverlust**:
+Sind mindestens drei der vier Schulter-/Hüftpunkte (11, 12, 23, 24) mit
+Visibility und Presence ab 0,5 vorhanden und ist eine Person zugeordnet,
+dürfen einzelne Gelenke auch länger als 0,5 s unsicher bleiben. Diese Bilder
+zählen weiterhin vollständig zum 30-%-Budget. Fehlt diese Rumpfbasis oder ist
+die Zuordnung unklar, läuft eine eigene Uhr; über 0,5 s führt sie zum Ganzbild.
+Benachbarte Finger-/Gelenkverdeckungen verlängern diese Kernlücke nicht.
+
+Über 30 %, bei einer zusammenhängenden Rumpf-/Zuordnungslücke über 0,5 s,
+Bildrandnähe, echten Zeitlücken über 0,5 s oder zeitlichem Sampling gilt
+weiterhin Ganzbild mit Warnung. Lückendauern umfassen die begrenzenden
+zuverlässigen Zeitpunkte, soweit vorhanden. `--zoom-max-uncertain-percent` erlaubt eine
 explizite andere Grenze von 0 bis 100; Sicherheitsgrenzen und fehlende
 Bewegungsdaten bleiben wirksam. Nicht beobachtete Bewegungen können trotz
 Randreserve außerhalb des Ausschnitts liegen. Posen und Zeitstempel bleiben
@@ -220,14 +228,33 @@ Paket gelesen; es findet keine neue Modellerkennung oder Interpolation statt.
 Die Dateien enthalten die lokalen Bewegungsdaten und gehören nicht ins
 öffentliche Git-Repository.
 
-Zoomdiagnose: Der Algorithmus toleriert standardmäßig bis zu 10 % kurze
-unsichere Analysebilder. Anteil und Grenze werden in den Warnungen ausgegeben.
+Zoomdiagnose: Der Algorithmus toleriert standardmäßig bis zu 30 % unsichere
+Analysebilder. Anteil, Grenze und getrennte Teil-/Kernlücken stehen in den Warnungen.
 Er verändert das Video auch bei
 einem berechneten Crop nicht physisch; die Zoommetadaten muss später der Player
 anwenden. Niedrige Konfidenzen sind in den Punkttabellen erkennbar. Die Zahl
 erkannter Personen wurde im Format 1.0.0 nicht pro Frame gespeichert und kann
 aus dem Export nicht nachträglich rekonstruiert werden; dafür bleiben die
 zusammengefassten Warnungen im ursprünglichen Qualitätsbericht maßgeblich.
+
+## Zoom vorhandener Pakete ohne neue Modellerkennung berechnen
+
+```powershell
+.\.venv\Scripts\python -m analyzer.rezoom 'C:\Tanzvideos\Training.choreo' 'C:\Tanzvideos\Training - Zoom30.choreo'
+```
+
+Schreibt eine neue Datei mit aktueller Zoomregel. Das Quellpaket wird nicht
+überschrieben; Video, Posen, Zeitstempel, Vorschau und Audiooffset bleiben
+unverändert. Nur Zoom, Qualitätsbericht und zugehörige Manifest-/Hashwerte
+ändern sich. Hashes/Schema werden vorab und beim Export vollständig geprüft.
+Die Videoframes werden einmal mit PyAV dekodiert, um vollständige zeitliche
+Abdeckung zu prüfen; bei fehlenden Analysezeitpunkten bleibt der Zoom Ganzbild.
+Kein MediaPipe-Lauf und kein Modelldownload nötig. Alte Zoommeldungen werden
+durch aktuelle Befunde ersetzt, andere Qualitätswarnungen bleiben erhalten.
+Im v1-Format sind unzugeordnete Posen vollständig fehlend; sie gelten bei der
+Neuberechnung konservativ als verlorene Körperbasis. Die Personenauswahl wird
+nicht neu durchgeführt. Eine bestehende HTML-Vorschau muss separat mit den
+neuen Paketen erzeugt werden, da sie eine unveränderliche Datensicht enthält.
 
 ## Prüfung
 
@@ -236,6 +263,7 @@ zusammengefassten Warnungen im ursprünglichen Qualitätsbericht maßgeblich.
 .\.venv\Scripts\python -m unittest discover -s tests -p test_choreo.py -v
 .\.venv\Scripts\python -m unittest discover -s tests -p test_export_poses.py -v
 .\.venv\Scripts\python -m unittest discover -s tests -p test_model_comparison.py -v
+.\.venv\Scripts\python -m unittest discover -s tests -p test_zoom_policy.py -v
 node tests/preview.test.cjs
 .\.venv\Scripts\python -m analyzer.validate tests/fixtures/synthetic.choreo
 node tests/zoom.test.cjs
