@@ -1,5 +1,15 @@
 # Technischer Umsetzungsplan – von Codex abzuarbeiten
 
+## Separater 2.0-Auftrag: Phase 2 Analyzer (2026-11-22)
+
+Auf ausdrücklichen Nutzerauftrag folgt auf den gemergten Format-PR #4 ein
+separater Analyzer-PR. CLI-Videoimport, MediaPipe 33, PTS, fester Zoom,
+Qualitätsbericht, CPU-Fallback und Export sind implementiert. Details und
+offene Tanzclip-Abnahmen: `analyzer/README.md`, `docs/TEST_RESULTS.md`.
+Diese Nummerierung gehört zum eigenständigen 2.0-Plan, nicht zur älteren
+Mobile-UI/PWA-Phase 2 unten. GUI (2.0-Phase 3), Browserimport (2.0-Phase 4)
+und Personenauswahl bleiben Folgeaufträge. Kein automatischer Merge/Deployment.
+
 ## Phase 0 – Baseline sichern (P0)
 - Aktuellen Stand in Git initialisieren; Originaldatei als unveränderte Referenz behalten.
 - Syntaxprüfung und Smoke-Tests für UI und lokale Datei-URL durchführen. Statische Bereitstellung auf HTTPS einrichten (z. B. Vercel), ohne Zugangsdaten zu erfinden.

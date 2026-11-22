@@ -1,4 +1,24 @@
-# Showtanztrainer 2.0 – Phase 1
+# Showtanztrainer 2.0 – Architektur und Phasen
+
+## Phase 2: CLI-Analyzer (2026-11-22)
+
+Grundlage ist der gemergte Format-PR [#4](https://github.com/SaschaPauly/Tanztrainer/pull/4)
+(Merge `e3975f5da520eac951db275549d9e41c044bc004`). Schema und Fixture bleiben
+unverändert. `analyzer.cli` verbindet `video` (FFmpeg/PyAV-PTS), `pose`
+(MediaPipe/CPU-Fallback/33×7-Konvertierung), `analysis` (Qualität/fester Zoom)
+und `export` (Hashes/ZIP/Validator/atomare Ausgabe). Keine Browserabhängigkeit
+auf Python oder ein Backend.
+
+Standardmäßig jeder Videoframe, nur Inferenzauflösung verkleinert; Zeitreihen
+gehen direkt auf Disk. Bei Sampling/unsicheren Grenzen Ganzbild-Fallback.
+Einpersonenaufnahme vorausgesetzt; mehrere erkannte Personen werden als
+fehlender Frame dokumentiert, ohne Identitätszuordnung. Installation, Grenzen
+und Beispiele: [Analyzer-Anleitung](../analyzer/README.md).
+
+Phase 3 bleibt Windows-GUI, Phase 4 Browserimport/Zeitreihenadapter.
+Webdateien und Hostingkonfiguration sind unverändert; der neue Windows-Workflow
+prüft nur Python und veröffentlicht nichts. Die folgenden Abschnitte halten
+den Phase-1-Ausgangsstand und die spätere Integration fest.
 
 ## Ziel und Grenzen
 

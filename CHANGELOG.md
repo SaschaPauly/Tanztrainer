@@ -1,5 +1,12 @@
 # Änderungsprotokoll
 
+## Showtanztrainer 2.0 – Phase 2: CLI-Analyzer – 2026-11-22 (PR zur Prüfung)
+- Lokaler Windows-Python-Analyzer mit MediaPipe Tasks (33 Punkte, 2D und hüftrelatives geschätztes 3D), GPU-Prüfung und CPU-Fallback.
+- H.264/AAC-Import mit physischer Orientierung, VFR-PTS, frameweiser Verarbeitung und Ressourcenlimits.
+- Konservativer fester Ganzkörperzoom, Qualitätswarnungen mit Zeitbezug, schemaidentischer `.choreo`-Export mit Hashes und vollständiger Validierung vor atomarem Speichern.
+- Reproduzierbare Medientests und Windows-CI, Installations-/CLI-Dokumentation; Windows-Pfadtest des vorhandenen Validators korrigiert.
+- Keine Änderung an `index.html`, `src/`, `original/`, Schema, Pages-Konfiguration oder Browserverhalten. Kein automatischer Merge. GUI, Browserimport und Personentracking folgen separat.
+
 ## v1.1.0 vorgesehen – Automatischer Videozoom – 2026-11-02
 - Lokale Voranalyse des vollständigen gewählten Referenzbereichs mit vorhandenem MediaPipe-Modell, zeitlicher und adaptiver Abtastung, Konfidenz-/Plausibilitätsprüfungen und Sicherheitsreserven.
 - Konstanter, fensterabhängiger Ausschnitt für Trainingsansicht und Splitbild-Aufnahme; keine dynamische Nachführung. Haltungsbewertung und ursprünglicher Analysebereich bleiben erhalten.

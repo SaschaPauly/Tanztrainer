@@ -101,9 +101,19 @@ class ChoreoTests(unittest.TestCase):
     def test_paths(self):
         for path in ['../video.mp4','/video.mp4','reference\\video.mp4','C:/video.mp4','reference/../video.mp4']:
             with self.subTest(path=path):
+                if '\\' in path:
+                    # ZipInfo normalizes os.sep on Windows. Mutate the raw names
+                    # AFTER writing so the validator really receives backslashes.
+                    package = self.write()
+                    package.write_bytes(package.read_bytes().replace(b'reference/video.mp4', b'reference\\video.mp4'))
+                    with self.assertRaisesRegex(ValidationError, 'Pfade'):
+                        validate(package)
+                    continue
                 self.data[path] = self.data.pop('reference/video.mp4')
-                self.reject('Pfade')
-                self.data['reference/video.mp4'] = self.data.pop(path)
+                try:
+                    self.reject('Pfade')
+                finally:
+                    self.data['reference/video.mp4'] = self.data.pop(path)
 
     def test_compression_bomb(self):
         self.data['reference/video.mp4'] = b'0'*200000

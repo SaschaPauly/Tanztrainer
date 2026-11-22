@@ -1,4 +1,49 @@
-# Autozoom: Teststatus – 2026-11-02
+# Teststatus
+
+## Showtanztrainer 2.0 – Phase 2 (2026-11-22)
+
+Grundlage: Format-PR #4 ist gemergt (`e3975f5`). Geprüft unter Windows x64,
+Python 3.13, PyAV 19.0.2, MediaPipe 1.2.3, imageio-ffmpeg 0.8.1
+(FFmpeg 9.0.2). Der Paketvertrag `shared/` und das bestehende Fixture sind
+unverändert. Keine Kamera-/Video-/Pose-Uploads.
+
+- 25 neue Analyzertests erfolgreich: echte lokale Decoder/Encoder, VFR-PTS,
+  Audioeinsatz mit 200 ms Verzögerung (30 ms AAC-Toleranz), physische Rotation,
+  Full-Range-Normalisierung, Unicode-/Leerzeichenpfade, 33×7-Layout,
+  Hüftursprung, Presence/Missing-Regeln, Zoom über alle Bewegungsgrenzen,
+  konservativer Sampling-Fallback, GPU-Initialisierungs-/Inferenzfallback,
+  Fehler/Strg+C, Paketbudget, Ablehnung nichtquadratischer Pixel und atomarer
+  Export einschließlich konkurrierender Ausgabedatei.
+- 30 vorhandene Formattests erfolgreich. Ein plattformabhängiger Testfall
+  schreibt Backslashes jetzt direkt in die ZIP-Bytes: Windows normalisiert
+  sonst schon beim Testaufbau den Dateinamen. Die bestehende Ablehnung im
+  Validator erhielt eine passende Meldung für Pfadnormalisierung statt NUL.
+- Echte MediaPipe-Lite-Modellläufe unter Windows: CPU und `auto` mit
+  beobachtetem GPU→CPU-Fallback auf synthetischem Blauvideo (vier Frames,
+  132 fehlende Gelenke, gültiges `partial`-Paket). Zusätzlich vier Frames
+  eines aus dem offiziellen Personen-Testbild erzeugten Videos: 33 erkannte
+  Punkte je Frame, 0 fehlende Gelenke, gültiger `complete`-Export. Das ist
+  ein Inferenz-Smoke-Test, keine Tanzqualitäts- oder Bewegungsgüteabnahme.
+- Modell explizit von Google geladen:
+  `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`;
+  Personenbild: `https://storage.googleapis.com/mediapipe-assets/pose.jpg`.
+  Beide nur lokal für Smoke-Tests, nicht eingecheckt. Automatisierte Tests
+  brauchen weder diese Downloads noch Netzwerkzugriff.
+- Vier bestehende Node-Zoomtests, Syntaxprüfungen aller drei produktiven
+  JS-Dateien, Fixture-Validierung, `pip check` und `git diff --check` erfolgreich.
+- `git diff main -- index.html src original shared tests/fixtures` ist leer.
+  Bestehende Browserregressionen wurden in dieser Phase nicht erneut ausgeführt;
+  deren bisheriger Stand steht unten. Keine Pages-/Vercel-Konfigurationsänderung.
+- Windows-CI für Python 3.12/3.13 ergänzt; ihr Status ist im separaten PR zu
+  prüfen. Sie enthält keine Veröffentlichungs- oder Mergeaktion.
+
+Offen: reales Tanzvideo mit Drehungen/Verdeckungen, lange 4K-Aufnahme,
+CPU-Speicher-/Laufzeitprofil, reale GPU-Beschleunigung und Android-Geräteabnahme.
+Eine einzelne vorgesehene Person ist Voraussetzung; keine Personenauswahl/
+Identitätsverfolgung. GUI folgt in 2.0-Phase 3, Browserimport in Phase 4.
+Installation, Aufruf und Grenzen: [Analyzer-Anleitung](../analyzer/README.md).
+
+## Autozoom: Teststatus – 2026-11-02
 
 Kandidat für v1.1.0, keine Veröffentlichung. Vorhandene Kameradiagnose-/Baseline-Änderungen sind enthalten; echte Android-Abnahme bleibt offen. Der aktuelle Entwicklungsauftrag autorisiert dieses isolierte Zoom-Inkrement trotz der noch offenen Geräteabnahme der früheren Roadmap.
 
