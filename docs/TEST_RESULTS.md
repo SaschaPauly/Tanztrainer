@@ -1,5 +1,24 @@
 # Teststatus
 
+## Zoomtoleranz 30 % und getrennte Zeitprüfung (2026-11-22)
+
+- 94 Python-Tests: 82 bisherige plus zwölf Fälle für inklusive 30-%-Grenze und
+  Überschreitung, lange Teilverdeckung, drei/vier Rumpfanker, echten Kernverlust,
+  Mehrdeutigkeit, getrennte Zeitspannen, 0,5-s-Grenzwert und Paket-Neuberechnung.
+- Neuer Paketworkflow erhält Video, Posebytes, Float64-Timestamps, Preview und
+  Audiooffset; Quellhash unverändert. Tatsächliche Frameabdeckung gegen den
+  Videodecoder geprüft, Sampling und bestehende Ausgaben konservativ behandelt.
+- Vorhandenes lokales Lite-Ergebnis ohne neue Inferenz ausgewertet: 23,26 %
+  unsichere Bilder, längste Teilunsicherheit 1,867 s, längste Kernlücke 0,200 s.
+  Fester Crop x=0,34777, y=0, Breite=0,37302, Höhe=1. Alle 106623 zuverlässig
+  gespeicherten Punkte liegen innerhalb. Video-/Pose-/Zeit-/Preview-Hashes
+  gegenüber dem ursprünglichen Lite-Paket identisch.
+- Neue lokale Vorschau öffnet Lite mit aktivem Zoom. Chrome: korrekte 30-%-
+  Anzeige, Großansicht, vier aufeinanderfolgende Schritte, Wiedergabe und
+  Zoomumschaltung geprüft; kein JS-Fehler und keine externen Requests. Sichtprüfung.
+- Vollständige Sicherheit für verdeckte Bewegungen ist damit nicht belegt;
+  Zoom bleibt heuristisch. Trainingsnoten und Konfidenzgrenzen unverändert.
+
 ## Skelettvorschau, Einpersonenmodus und Modellvergleich (2026-11-22)
 
 - 82 Python-Tests unter Windows/Python 3.13 erfolgreich: 34 bisherige

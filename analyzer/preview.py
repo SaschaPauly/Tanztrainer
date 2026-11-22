@@ -37,6 +37,7 @@ HTML = r'''<!doctype html>
 h1{font-size:1.7rem;margin:0 0 8px}p{line-height:1.5}.muted{color:#bac6d9}button,select,input{font:inherit}button,select{background:#25354b;border:1px solid #657993;color:inherit;border-radius:8px;padding:8px 12px;cursor:pointer}button:hover{background:#354d6e}
 .controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px;background:#1b2739;border-radius:12px;margin-block:16px}.controls label{display:flex;align-items:center;gap:6px}#seek{flex:1;min-width:180px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:#1b2739;border-radius:12px;overflow:hidden}.card h2,.card p{margin:12px}.card h2{font-size:1.2rem}.card canvas{display:block;width:100%;height:auto;background:#000}.status{min-height:4em;font-size:.9rem;white-space:pre-line}table{border-collapse:collapse;width:100%;margin-block:20px}th,td{text-align:left;padding:10px;border-bottom:1px solid #38475c}th{color:#bac6d9}.legend{display:flex;gap:18px;flex-wrap:wrap}.green{color:#4ff0a4}.amber{color:#ffd05e}.red{color:#ff6577}#error{color:#ff8996}summary{cursor:pointer;font-weight:600}details{padding:12px;background:#1b2739;border-radius:10px;margin-top:16px}li{margin-block:6px}
 .grid.single{grid-template-columns:minmax(0,1fr);max-width:1100px;margin-inline:auto}
+.grid.single canvas{max-height:75vh;object-fit:contain}
 @media(max-width:900px){.grid{grid-template-columns:1fr}body{padding:12px}table{font-size:.85rem}th,td{padding:7px}}
 </style></head><body>
 <h1>Skelettvorschau und Modellvergleich</h1>
@@ -67,6 +68,7 @@ const models=data.models.map(m=>({...m,values:bytes(m.poses),timestamps:bytes(m.
 const count=models[0].manifest.frameCount,time=i=>models[0].timestamps.getFloat64(i*8,true),fmt=n=>n.toLocaleString('de-DE',{maximumFractionDigits:2});
 video.muted=true;
 $('scope').textContent=data.summary.maxFps===0?'Vollständige Analyse aller Videobilder.':`Stichprobenvergleich: höchstens ${data.summary.maxFps} Analysebilder pro Sekunde. Prozentwerte beziehen sich auf diese Stichprobe.`;
+if(Number.isFinite(data.summary.zoomMaxUncertainPercent))$('scope').textContent+=` Zoomtoleranz: ${data.summary.zoomMaxUncertainPercent} %; Zeitgrenze gilt für Rumpf-/Zuordnungslücken.`;
 for(const m of models){
  const card=document.createElement('section');card.className='card';const h=document.createElement('h2');h.textContent=m.name.toUpperCase();const canvas=document.createElement('canvas');canvas.width=640;canvas.height=360;canvas.setAttribute('aria-label',`Skelettvorschau ${m.name}`);const status=document.createElement('p');status.className='status';card.append(h,canvas,status);$('cards').append(card);m.canvas=canvas;m.status=status;m.card=card;
  const row=document.createElement('tr'),stats=data.summary.models[m.name];for(const text of [m.name.toUpperCase(),fmt(stats.uncertainPercent)+' %',fmt(stats.usableBodyPercent)+' %',String(stats.missingLandmarks),fmt(stats.elapsedSeconds)+' s']){const cell=document.createElement('td');cell.textContent=text;row.append(cell)}$('metrics').append(row);
@@ -105,5 +107,7 @@ $('view').onchange=()=>{const selected=$('view').value;$('cards').classList.togg
 bindMediaMetadata(video,$('seek'),draw);
 video.onseeked=draw;video.onloadeddata=draw;video.onerror=()=>$('error').textContent='reference.mp4 nicht lesbar. Alle Vergleichsdateien im selben Ordner belassen und die HTML-Datei in Chrome oder Edge öffnen.';
 let lastPaint=-1;function loop(){if(!video.paused&&video.currentTime!==lastPaint){lastPaint=video.currentTime;draw()}requestAnimationFrame(loop)}requestAnimationFrame(loop);
+if(data.summary.previewView&&models.some(m=>m.name===data.summary.previewView)){$('view').value=data.summary.previewView;$('view').onchange()}
+if(data.summary.previewApplyZoom){$('crop').checked=true;draw()}
 window.previewReady=true;
 </script></body></html>'''

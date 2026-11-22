@@ -9,6 +9,7 @@ on:
       - 'tests/test_choreo.py'
       - 'tests/test_export_poses.py'
       - 'tests/test_model_comparison.py'
+      - 'tests/test_zoom_policy.py'
       - 'tests/preview.test.cjs'
       - 'tests/fixtures/**'
       - '.github/workflows/analyzer.yml'
@@ -36,5 +37,6 @@ jobs:
       - run: python -m unittest discover -s tests -p test_choreo.py -v
       - run: python -m unittest discover -s tests -p test_export_poses.py -v
       - run: python -m unittest discover -s tests -p test_model_comparison.py -v
+      - run: python -m unittest discover -s tests -p test_zoom_policy.py -v
       - run: node tests/preview.test.cjs
       - run: python -m analyzer.validate tests/fixtures/synthetic.choreo
