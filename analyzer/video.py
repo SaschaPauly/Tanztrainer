@@ -37,7 +37,7 @@ def normalize(source, destination, ffmpeg=None):
                '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1', '-map_chapters', '-1',
                '-c:v', 'libx264', '-threads', '2', '-preset', 'fast', '-crf', '20',
                '-vf', 'scale=in_range=auto:out_range=tv,setsar=1', '-color_range', 'tv',
-               '-pix_fmt', 'yuv420p', '-fps_mode', 'passthrough',
+               '-pix_fmt', 'yuv420p', '-fps_mode', 'passthrough', '-enc_time_base:v', 'demux',
                '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart',
                '-fs', str(MAX_BYTES + 1), str(destination)]
     # Use a disk-backed log rather than retaining arbitrary stderr in memory.

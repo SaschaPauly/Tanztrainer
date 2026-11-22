@@ -220,6 +220,21 @@ class MediaTests(unittest.TestCase):
         info = normalize(rotated, self.root/'upright.mp4')
         self.assertEqual((info['width'], info['height']), (120,160))
 
+    def test_subframe_pts_precision_is_preserved(self):
+        source = self.root/'precise-pts.mp4'
+        self.ffmpeg(['-f','lavfi','-i','color=c=blue:s=160x120:r=30:d=1',
+                     '-vf',"settb=1/600,setpts='PTS+if(gte(N,4),3,0)'",
+                     '-c:v','libx264','-pix_fmt','yuv420p','-enc_time_base:v','1:600',
+                     '-fps_mode','passthrough',source])
+        target = self.root/'precise-normalized.mp4'
+        normalize(source, target)
+        before = [time for _, time in frames(source)]
+        after = [time for _, time in frames(target)]
+        self.assertAlmostEqual(before[4]-before[3], 1/30+.005, places=6)
+        self.assertEqual(len(before), len(after))
+        for a, b in zip(before, after):
+            self.assertAlmostEqual(a, b, places=6)
+
     def test_sampling_forces_conservative_zoom(self):
         manifest, _ = self.analyze(max_fps=2)
         self.assertEqual(manifest['frameCount'], 2)

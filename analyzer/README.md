@@ -49,7 +49,7 @@ Validierung. Strg+C entfernt temporäre Dateien und erhält vorhandene Ausgaben.
 | `--max-fps 15` | Weniger Inferenzarbeit durch zeitliche Abtastung; Zoom verwendet wegen möglicher verpasster Extrema Ganzbild |
 | `--max-side 1280` | Größte Bildkante nur für Inferenz verkleinern; Originalvideo und Koordinatensystem erhalten |
 | `--aspect 0.5625` | Player-Breite/Höhe (Standard 9:16); reine Zoommetadaten |
-| `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264 und `-fps_mode` erforderlich |
+| `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264, `-fps_mode` und `-enc_time_base:v demux` erforderlich |
 | `--overwrite` | Vorhandenes Paket nach erfolgreicher Analyse atomar ersetzen |
 
 Fortschritt erscheint auf stderr; Ergebnis/Qualitätswarnungen auf stdout.
@@ -63,7 +63,8 @@ exportiert, nicht als erfolgreiche Körpererkennung bezeichnet.
 FFmpeg normalisiert erste Video-/optionale erste Audiospur auf MP4/H.264/
 yuv420p und AAC, wendet Orientierung physisch an und entfernt andere Spuren/
 Metadaten. `-copyts -start_at_zero -fps_mode passthrough` erhält variable
-Frameabstände; der gemeinsame Containerstart wird auf null bezogen, relative
+Frameabstände; `-enc_time_base:v demux` erhält auch Zeitpunkte zwischen den
+nominalen FPS-Rasterpunkten. Der gemeinsame Containerstart wird auf null bezogen, relative
 A/V-Abstände bleiben erhalten. Keine Kürzung, Beschleunigung oder Spiegelung.
 `audio.offsetSeconds=0`, da Verzögerungen im eingebetteten Ton liegen.
 AAC-Neukodierung kann die technische Startmarke um einen Audioframe verschieben;

@@ -8,11 +8,15 @@ Pixel ab. Der Import akzeptiert nun `None`, `0/1` und `1/1` und schreibt
 quadratische Pixel explizit in das normalisierte Paketvideo, ohne Bildmaße
 zu ändern. Tatsächlich nichtquadratische Pixel werden weiterhin abgewiesen.
 
-- 26 Analyzertests und 30 Formattests unter Windows/Python 3.13 erfolgreich.
+- 27 Analyzertests und 30 Formattests unter Windows/Python 3.13 erfolgreich.
 - Neuer Regressionstest mit realem FFmpeg/PyAV: synthetische Quelle mit
   `SAR=0/1`, vollständiger CLI-Analysepfad mit synthetischer Engine, gültiger
   Export, SAR danach `1/1`, unveränderte Bildmaße und sämtliche PTS identisch.
 - Bestehende VFR-/Audio-/Rotations-/Full-Range-Tests weiterhin erfolgreich.
+- Zusätzlicher Präzisionstest für echte Zeitpunkte zwischen nominalen FPS:
+  synthetische 30-fps-Quelle mit 5-ms-Versatz ab Frame 4. Mit
+  `-enc_time_base:v demux` erhält der Import die Original-PTS anstatt sie
+  auf das nominale FPS-Raster zu runden.
 - Webdateien, Formatvertrag und Fixture unverändert; `git diff --check` sauber.
 
 ## Showtanztrainer 2.0 – Phase 2 (2026-11-22)
