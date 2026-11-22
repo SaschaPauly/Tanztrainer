@@ -79,3 +79,36 @@ Die Tests verwenden echte Chromium-Medien-APIs mit simulierter Kamera. Berechtig
 - Vollständige V12-Regression mit echtem Tanzvideo einschließlich Nachanalyse und Bildpaaren sowie Geräte-Fallbacks für optionale Trainings-APIs.
 
 Es wurde kein öffentliches HTTPS-Deployment angelegt. Vercel-Anleitung in README.md, manuelle Schritte in docs/ANDROID_TESTPLAN.md. Geräteabnahme und vollständiger Phase-1-Abschluss dürfen erst nach diesen Tests behauptet werden.
+
+## Showtanztrainer 2.0 – Formatgrundlage, 2026-11-16
+
+Umgebung: Linux, Python 3.12, jsonschema 4.26.0, Desktop-Chromium über
+Playwright, FFmpeg/libx264, Node.js. Keine echten Kamera-/Personenaufnahmen.
+
+- 30 neue Pakettests bestanden: gültiges STORE/DEFLATE-Paket, JSON-Schema,
+  Gelenkregister, defektes ZIP/CRC, fehlende Dateien, falsche SHA-256,
+  unbekannte Version, falsche Gelenkanzahl/Binärlänge, nichtmonotone/negative/
+  nichtendliche/zu große Zeitstempel, Zoomgrenzen und Zoom-Datentypen,
+  inkonsistente Zoomdatei, Traversal/absolute/Windows-Pfade, doppelte Einträge,
+  Symlinks, Verschlüsselungsflag, ZIP64-Version, falscher lokaler Header,
+  nicht erlaubte Kompression, Größenlimits vor Dekompression und Kompressionsbombe,
+  fehlende/ungültige Posewerte, Qualitätskonsistenz, doppelte JSON-Schlüssel,
+  NaN/Float-Überlauf und falsche Mediensignaturen.
+- Bestehende 19 Chromium-Regressionsfälle bestanden (Kamera/V12/Autozoom).
+- Vier Node-Zoomtests bestanden; Syntaxprüfungen für `src/app.js`,
+  `src/camera.js`, `src/zoom.js` bestanden.
+- CLI validiert `tests/fixtures/synthetic.choreo` erfolgreich. FFprobe bestätigt
+  H.264, yuv420p, 160×120, 1,000 s für das selbst erzeugte Beispielvideo.
+- `git diff --exit-code -- index.html src original` bestätigt unveränderte
+  produktive Webdateien; `git diff --check` ohne Fehler.
+
+Reproduktion: siehe `analyzer/README.md` und Haupt-README. Der erste Versuch
+mit Browserregressionen war durch die Sandbox-Sperre für lokale Sockets
+blockiert; erneuter Lauf mit erlaubtem Netzwerkzugriff für den lokalen
+Testserver erfolgreich. Fehlertext-Erwartungen wurden während der Entwicklung
+korrigiert; die oben angegebenen Ergebnisse beziehen sich auf den fertigen Stand.
+
+Grenzen: keine echte Windows-/Android-Geräteabnahme, keine reale
+MediaPipe-Analyse, keine vollständige Codecvalidierung durch den
+Paketvalidator, kein Browser-.choreo-Importer. Diese Phase ergänzt den
+Dateivertrag und Werkzeuge; sie bestätigt keine neuen Trainingsfähigkeiten.

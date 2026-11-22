@@ -1,0 +1,138 @@
+{
+  "format": "showtanz-choreo",
+  "version": "1.0.0",
+  "landmarks": [
+    {
+      "index": 0,
+      "name": "nose"
+    },
+    {
+      "index": 1,
+      "name": "left_eye_inner"
+    },
+    {
+      "index": 2,
+      "name": "left_eye"
+    },
+    {
+      "index": 3,
+      "name": "left_eye_outer"
+    },
+    {
+      "index": 4,
+      "name": "right_eye_inner"
+    },
+    {
+      "index": 5,
+      "name": "right_eye"
+    },
+    {
+      "index": 6,
+      "name": "right_eye_outer"
+    },
+    {
+      "index": 7,
+      "name": "left_ear"
+    },
+    {
+      "index": 8,
+      "name": "right_ear"
+    },
+    {
+      "index": 9,
+      "name": "mouth_left"
+    },
+    {
+      "index": 10,
+      "name": "mouth_right"
+    },
+    {
+      "index": 11,
+      "name": "left_shoulder"
+    },
+    {
+      "index": 12,
+      "name": "right_shoulder"
+    },
+    {
+      "index": 13,
+      "name": "left_elbow"
+    },
+    {
+      "index": 14,
+      "name": "right_elbow"
+    },
+    {
+      "index": 15,
+      "name": "left_wrist"
+    },
+    {
+      "index": 16,
+      "name": "right_wrist"
+    },
+    {
+      "index": 17,
+      "name": "left_pinky"
+    },
+    {
+      "index": 18,
+      "name": "right_pinky"
+    },
+    {
+      "index": 19,
+      "name": "left_index"
+    },
+    {
+      "index": 20,
+      "name": "right_index"
+    },
+    {
+      "index": 21,
+      "name": "left_thumb"
+    },
+    {
+      "index": 22,
+      "name": "right_thumb"
+    },
+    {
+      "index": 23,
+      "name": "left_hip"
+    },
+    {
+      "index": 24,
+      "name": "right_hip"
+    },
+    {
+      "index": 25,
+      "name": "left_knee"
+    },
+    {
+      "index": 26,
+      "name": "right_knee"
+    },
+    {
+      "index": 27,
+      "name": "left_ankle"
+    },
+    {
+      "index": 28,
+      "name": "right_ankle"
+    },
+    {
+      "index": 29,
+      "name": "left_heel"
+    },
+    {
+      "index": 30,
+      "name": "right_heel"
+    },
+    {
+      "index": 31,
+      "name": "left_foot_index"
+    },
+    {
+      "index": 32,
+      "name": "right_foot_index"
+    }
+  ]
+}

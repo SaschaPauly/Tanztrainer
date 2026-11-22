@@ -1,0 +1,299 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "title",
+    "durationSeconds",
+    "frameCount",
+    "model",
+    "video",
+    "coordinateSystem",
+    "layout",
+    "zoom",
+    "audio",
+    "files"
+  ],
+  "properties": {
+    "format": {
+      "const": "showtanz-choreo"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "durationSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 14400
+    },
+    "frameCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        }
+      }
+    },
+    "coordinateSystem": {
+      "const": {
+        "image": "original-unmirrored-top-left-x-right-y-down",
+        "world": "hip-midpoint-meters-x-right-y-down-z-away"
+      }
+    },
+    "layout": {
+      "const": {
+        "byteOrder": "little-endian",
+        "scalar": "float32",
+        "landmarks": 33,
+        "valuesPerLandmark": 7,
+        "bytesPerFrame": 924,
+        "fields": [
+          "imageX",
+          "imageY",
+          "worldX",
+          "worldY",
+          "worldZ",
+          "visibility",
+          "presence"
+        ],
+        "timestamps": "float64-seconds"
+      }
+    },
+    "zoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "x",
+        "y",
+        "width",
+        "height",
+        "targetAspectRatio"
+      ],
+      "properties": {
+        "mode": {
+          "const": "fixed"
+        },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "targetAspectRatio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "offsetSeconds"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "reference/video.mp4",
+            "none"
+          ]
+        },
+        "offsetSeconds": {
+          "type": "number",
+          "minimum": -14400,
+          "maximum": 14400
+        }
+      }
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference/video.mp4",
+        "reference/poses.bin",
+        "reference/timestamps.bin",
+        "reference/zoom.json",
+        "reference/quality.json",
+        "assets/preview.jpg"
+      ],
+      "properties": {
+        "reference/video.mp4": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "size",
+            "sha256"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1073741824
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "reference/poses.bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "size",
+            "sha256"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1073741824
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "reference/timestamps.bin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "size",
+            "sha256"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1073741824
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "reference/zoom.json": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "size",
+            "sha256"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1073741824
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "reference/quality.json": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "size",
+            "sha256"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1073741824
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        },
+        "assets/preview.jpg": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "size",
+            "sha256"
+          ],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1073741824
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/SaschaPauly/Tanztrainer/main/shared/choreography.schema.json",
+  "title": "showtanz-choreo 1.0.0 manifest"
+}
