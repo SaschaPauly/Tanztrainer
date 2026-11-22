@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## Zoomtoleranz – 2026-11-22 (PR zur Prüfung)
+- Bis einschließlich 10 % unsichere Analysebilder für festen Zoom akzeptieren; CLI-Option `--zoom-max-uncertain-percent`, Prozentanteil und Grenze im Qualitätsbericht.
+- Zuverlässige Extrema auch aus unsicheren Bildern erhalten, zusätzliche 5 % Randreserve. Bei längeren Erkennungslücken, Zeitlücken, Bildrandnähe oder Sampling weiterhin Ganzbild-Fallback. Binärdaten, Format und Webanwendung unverändert.
+- Sieben neue Regressionstests für Grenzwert, Überschreitung, zusammenhängende Lücken, Mehrfachzählung, Randfälle und unveränderte Posewerte bei gültigem Export.
+
 ## Separate Haltungspunkt-Testausgabe – 2026-11-22 (PR zur Prüfung)
 - Validierte `.choreo`-Daten ohne erneute Analyse separat als CSV und SQLite ausgeben, einschließlich exakter Zeitstempel, 2D-/geschätzter 3D-Werte, Konfidenzen und Missing-Kennzeichen.
 - Bildtabelle, Zoom-/Qualitätsbericht und Leseanleitung ergänzen die Diagnose. Keine Änderung an Zoomalgorithmus, Quellvideo, Paketformat oder Webanwendung.

@@ -15,7 +15,7 @@ from analyzer.validate import SPEC
 
 def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
             max_side=1280, aspect=9/16, overwrite=False, ffmpeg=None,
-            engine_factory=PoseEngine):
+            zoom_max_uncertain_percent=10, engine_factory=PoseEngine):
     source, output, model = Path(source).resolve(), Path(output).resolve(), Path(model).resolve()
     if not source.is_file() or not model.is_file():
         raise ValueError('Video oder lokale MediaPipe-.task-Modelldatei fehlt.')
@@ -34,7 +34,7 @@ def analyze(source, output, model, *, title=None, backend='auto', max_fps=0,
         raise ValueError('--max-fps muss 0 (alle Frames) oder >0 bis 240 sein.')
     if not 64 <= max_side <= 4096 or not math.isfinite(aspect) or not 0 < aspect <= 100:
         raise ValueError('Ungültige Analyseauflösung oder ungültiges Zielseitenverhältnis.')
-    quality = Quality()
+    quality = Quality(zoom_max_uncertain_percent)
     if max_fps:
         quality.warn(f'Zeitliche Abtastung auf höchstens {max_fps:g} fps; kurze Bewegungen können fehlen. Zoom bleibt sicherheitshalber Ganzbild.')
         quality.safe = False
@@ -102,13 +102,16 @@ def main(argv=None):
     parser.add_argument('--max-fps', type=float, default=0, help='0: jeder Frame (Standard); sonst zeitliche Obergrenze')
     parser.add_argument('--max-side', type=int, default=1280, help='Maximale Bildkante nur für Inferenz')
     parser.add_argument('--aspect', type=float, default=9/16, help='Bevorzugtes Player-Breite/Höhe-Verhältnis')
+    parser.add_argument('--zoom-max-uncertain-percent', type=float, default=10,
+                        help='Maximaler Anteil unsicherer Analysebilder für festen Zoom (Standard: 10 Prozent)')
     parser.add_argument('--ffmpeg', type=Path, help='Eigene FFmpeg-Programmdatei statt gebündelter Version')
     parser.add_argument('--overwrite', action='store_true')
     args = parser.parse_args(argv)
     try:
         manifest, quality = analyze(args.video, args.output, args.model, title=args.title,
                                     backend=args.backend, max_fps=args.max_fps, max_side=args.max_side,
-                                    aspect=args.aspect, overwrite=args.overwrite, ffmpeg=args.ffmpeg)
+                                    aspect=args.aspect, overwrite=args.overwrite, ffmpeg=args.ffmpeg,
+                                    zoom_max_uncertain_percent=args.zoom_max_uncertain_percent)
     except KeyboardInterrupt:
         parser.exit(130, 'Analyse abgebrochen; kein unvollständiger Export.\n')
     except Exception as exc:

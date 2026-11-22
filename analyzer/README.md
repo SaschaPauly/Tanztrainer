@@ -49,6 +49,7 @@ Validierung. Strg+C entfernt temporäre Dateien und erhält vorhandene Ausgaben.
 | `--max-fps 15` | Weniger Inferenzarbeit durch zeitliche Abtastung; Zoom verwendet wegen möglicher verpasster Extrema Ganzbild |
 | `--max-side 1280` | Größte Bildkante nur für Inferenz verkleinern; Originalvideo und Koordinatensystem erhalten |
 | `--aspect 0.5625` | Player-Breite/Höhe (Standard 9:16); reine Zoommetadaten |
+| `--zoom-max-uncertain-percent 10` | Anteil unsicherer Analysebilder für festen Zoom; Standard 10 %, einschließlich der Grenze. 0 stellt die strenge Regel wieder her |
 | `--ffmpeg 'C:\Programme\ffmpeg.exe'` | Eigenes FFmpeg statt gebündelter Version; libx264, `-fps_mode` und `-enc_time_base:v demux` erforderlich |
 | `--overwrite` | Vorhandenes Paket nach erfolgreicher Analyse atomar ersetzen |
 
@@ -104,8 +105,23 @@ zusammengefasst. Diese Spanne ist kein durchgehendes Fehlerintervall.
 Ein fester Zoom umfasst die Grenzen aller zuverlässigen 33-Punkte-Posen über
 die komplette Choreografie, mit 8 % Reserve und weiteren 5 % oberhalb des
 Kopfes. Zum Zielseitenverhältnis wird nur erweitert, gegebenenfalls mit Balken.
-Bei einem unsicheren Frame, Bildrandnähe oder zeitlichem Sampling gilt
-Ganzbild mit Warnung. Video, Posen und Zeitstempel werden nicht zugeschnitten.
+Bis einschließlich **10 % unsichere Analysebilder** sind standardmäßig
+zulässig. Ein Bild zählt einmal als unsicher, wenn Punkte fehlen, mindestens
+eine Konfidenz unter 0,5 liegt oder die Personenzuordnung nicht eindeutig ist.
+Die Prozentzahl bezieht sich auf Bilder, nicht auf Gelenke, Videodauer oder
+einen erlaubten Koordinatenfehler. Mehrere Probleme im selben Bild zählen
+zusammen als ein unsicheres Bild. Alle zuverlässigen Punkte aus diesen Bildern
+bleiben in der Bewegungsvereinigung enthalten; es werden keine Extrema getrimmt.
+Bei tolerierten unsicheren Bildern kommen weitere 5 % Randreserve dazu.
+
+Über 10 %, bei einer zusammenhängenden Erkennungsunsicherheit über 0,5 s,
+Bildrandnähe, Zeitlücken über 0,5 s oder zeitlichem Sampling gilt weiterhin
+Ganzbild mit Warnung. Die Lückendauer umfasst die begrenzenden zuverlässigen
+Zeitpunkte, soweit vorhanden. `--zoom-max-uncertain-percent` erlaubt eine
+explizite andere Grenze von 0 bis 100; Sicherheitsgrenzen und fehlende
+Bewegungsdaten bleiben wirksam. Nicht beobachtete Bewegungen können trotz
+Randreserve außerhalb des Ausschnitts liegen. Posen und Zeitstempel bleiben
+unverändert, es gibt keine Interpolation oder physische Videobeschneidung.
 
 Voraussetzung: **eine vorgesehene Person im Video**. MediaPipe sucht bis zu
 zwei Posen; bei mehreren erkannten Personen wird der ganze Frame fehlend
@@ -145,8 +161,9 @@ Paket gelesen; es findet keine neue Modellerkennung oder Interpolation statt.
 Die Dateien enthalten die lokalen Bewegungsdaten und gehören nicht ins
 öffentliche Git-Repository.
 
-Zoomdiagnose: Der aktuelle konservative Algorithmus fällt bereits bei einem
-unsicheren Analyseframe auf Ganzbild zurück. Er verändert das Video auch bei
+Zoomdiagnose: Der Algorithmus toleriert standardmäßig bis zu 10 % kurze
+unsichere Analysebilder. Anteil und Grenze werden in den Warnungen ausgegeben.
+Er verändert das Video auch bei
 einem berechneten Crop nicht physisch; die Zoommetadaten muss später der Player
 anwenden. Niedrige Konfidenzen sind in den Punkttabellen erkennbar. Die Zahl
 erkannter Personen wurde im Format 1.0.0 nicht pro Frame gespeichert und kann

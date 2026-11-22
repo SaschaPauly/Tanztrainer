@@ -135,7 +135,7 @@ class TimelineZoomTests(unittest.TestCase):
         quality = Quality()
         points = [(x, y) for x, y in ((.3,.2),(.7,.8))] + [(.5,.5)]*31
         quality.observe(0, 0, points, 1)
-        quality.observe(1, 0, [(.2,.15)]*33, 1)
+        quality.observe(.1, 0, [(.2,.15)]*33, 1)
         for aspect in (.1, 9/16, 16/9, 10):
             zoom = quality.zoom(1920, 1080, aspect)
             self.assertLessEqual(zoom['x'], .2)
@@ -155,6 +155,66 @@ class TimelineZoomTests(unittest.TestCase):
         self.assertEqual(report['status'], 'partial')
         self.assertEqual(report['missingLandmarks'], 34)
         self.assertTrue(any('0.300' in text and '1.400' in text for text in report['warnings']))
+
+    def zoom_sequence(self, bad_indices, *, count=100, tolerance=10):
+        quality = Quality(tolerance)
+        points = [(.35,.2),(.65,.8)] + [(.5,.5)]*31
+        for index in range(count):
+            quality.observe(index/30, 1 if index in bad_indices else 0,
+                            points[:-1] if index in bad_indices else points, 1)
+        return quality, quality.zoom(1000, 1000, 1)
+
+    def test_ten_percent_inclusive_and_next_frame_rejected(self):
+        bad = set(range(5,100,10))
+        quality, crop = self.zoom_sequence(bad)
+        self.assertLess(crop['width'], 1)
+        self.assertLess(crop['height'], 1)
+        self.assertEqual(quality.missing, 10)
+        _, over = self.zoom_sequence(bad | {2})
+        self.assertEqual((over['width'], over['height']), (1,1))
+
+    def test_strict_zero_and_invalid_tolerances(self):
+        _, crop = self.zoom_sequence({5}, tolerance=0)
+        self.assertEqual(crop['width'], 1)
+        for tolerance in (-1,101,math.nan,math.inf):
+            with self.assertRaises(ValueError):
+                Quality(tolerance)
+
+    def test_long_uncertain_run_falls_back_below_percentage_limit(self):
+        quality, crop = self.zoom_sequence(set(range(50,70)), count=200)
+        self.assertEqual(crop['width'], 1)
+        self.assertTrue(any('zusammenhängende' in warning for warning in quality.warnings))
+
+    def test_tolerated_missing_points_keep_reliable_extrema(self):
+        quality = Quality()
+        points = [(.4,.2),(.6,.8)] + [(.5,.5)]*31
+        for index in range(10):
+            current = [(.15,.5)]+points[1:-1] if index == 5 else points
+            quality.observe(index/30, 1 if index == 5 else 0, current, 1)
+        crop = quality.zoom(1000,1000,1)
+        self.assertLess(crop['width'], 1)
+        self.assertLessEqual(crop['x'], .15)
+        self.assertGreaterEqual(crop['x']+crop['width'], .6)
+        self.assertLessEqual(crop['y'], .2)
+        self.assertGreaterEqual(crop['y']+crop['height'], .8)
+
+    def test_border_and_timestamp_gaps_remain_hard_fallbacks(self):
+        for timestamp, point in ((.1,(.01,.5)), (1.,(.5,.5))):
+            quality = Quality()
+            quality.observe(0,0,[(.5,.5)]*33,1)
+            quality.observe(timestamp,0,[point]*33,1)
+            crop = quality.zoom(1000,1000,1)
+            self.assertEqual(crop['width'], 1)
+
+    def test_uncertainty_uses_frame_union_without_double_counting(self):
+        quality = Quality()
+        for index in range(10):
+            quality.observe(index/30,33 if index == 5 else 0,
+                            [] if index == 5 else [(.4,.2),(.6,.8)]+[(.5,.5)]*31,
+                            2 if index == 5 else 1)
+        crop = quality.zoom(1000,1000,1)
+        self.assertEqual(quality.uncertain_frames, 1)
+        self.assertLess(crop['width'], 1)
 
 
 class MediaTests(unittest.TestCase):
@@ -239,6 +299,23 @@ class MediaTests(unittest.TestCase):
         manifest, _ = self.analyze(max_fps=2)
         self.assertEqual(manifest['frameCount'], 2)
         self.assertEqual(manifest['zoom']['width'], 1)
+
+    def test_tolerated_uncertainty_exports_valid_partial_without_pose_changes(self):
+        source = self.root/'ten-frames.mp4'
+        self.ffmpeg(['-f','lavfi','-i','color=c=blue:s=160x120:r=10:d=1',
+                     '-c:v','libx264','-pix_fmt','yuv420p',source])
+        self.source = source
+        results = [pose() for _ in range(10)]
+        results[5].pose_landmarks[0][0].presence = None
+        expected = b''.join(pack_pose(result)[0] for result in results)
+        with patch.object(FakeEngine,'detect',side_effect=results):
+            manifest, quality = self.analyze(aspect=1)
+        self.assertLess(manifest['zoom']['width'],1)
+        self.assertEqual(quality['status'],'partial')
+        self.assertEqual(quality['missingLandmarks'],1)
+        with zipfile.ZipFile(self.output) as archive:
+            self.assertEqual(archive.read('reference/poses.bin'), expected)
+        validate(self.output)
 
     def test_failure_and_cancellation_leave_existing_output(self):
         self.output.write_bytes(b'previous')
