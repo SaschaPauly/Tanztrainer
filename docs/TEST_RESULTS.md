@@ -1,5 +1,20 @@
 # Teststatus
 
+## Analyzer-Importkorrektur (2026-11-22)
+
+Ein reales Referenzvideo enthält für das Pixelseitenverhältnis den Wert `0/1`
+(nicht angegeben). Die erste Version wies dies fälschlich als nichtquadratische
+Pixel ab. Der Import akzeptiert nun `None`, `0/1` und `1/1` und schreibt
+quadratische Pixel explizit in das normalisierte Paketvideo, ohne Bildmaße
+zu ändern. Tatsächlich nichtquadratische Pixel werden weiterhin abgewiesen.
+
+- 26 Analyzertests und 30 Formattests unter Windows/Python 3.13 erfolgreich.
+- Neuer Regressionstest mit realem FFmpeg/PyAV: synthetische Quelle mit
+  `SAR=0/1`, vollständiger CLI-Analysepfad mit synthetischer Engine, gültiger
+  Export, SAR danach `1/1`, unveränderte Bildmaße und sämtliche PTS identisch.
+- Bestehende VFR-/Audio-/Rotations-/Full-Range-Tests weiterhin erfolgreich.
+- Webdateien, Formatvertrag und Fixture unverändert; `git diff --check` sauber.
+
 ## Showtanztrainer 2.0 – Phase 2 (2026-11-22)
 
 Grundlage: Format-PR #4 ist gemergt (`e3975f5`). Geprüft unter Windows x64,

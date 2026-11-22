@@ -1,5 +1,8 @@
 # Änderungsprotokoll
 
+## Analyzer-Importkorrektur – 2026-11-22 (PR zur Prüfung)
+- Fehlende Pixelverhältnis-Metadaten (`0/1`) beim Import akzeptieren und als quadratische Pixel ausgeben; Regressionstest für unveränderte Abmessungen und PTS. Originalvideo, Schema und Webanwendung bleiben unverändert.
+
 ## Showtanztrainer 2.0 – Phase 2: CLI-Analyzer – 2026-11-22 (PR zur Prüfung)
 - Lokaler Windows-Python-Analyzer mit MediaPipe Tasks (33 Punkte, 2D und hüftrelatives geschätztes 3D), GPU-Prüfung und CPU-Fallback.
 - H.264/AAC-Import mit physischer Orientierung, VFR-PTS, frameweiser Verarbeitung und Ressourcenlimits.

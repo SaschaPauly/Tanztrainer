@@ -11,7 +11,9 @@ def inspect_video(path):
         if not container.streams.video:
             raise ValueError('Datei enthält keine Videospur.')
         stream = container.streams.video[0]
-        if stream.sample_aspect_ratio not in (None, 1):
+        # FFmpeg/PyAV use 0/1 as well as None for unspecified SAR.
+        # Unspecified SAR is displayed as square pixels; it is not anamorphic.
+        if stream.sample_aspect_ratio not in (None, 0, 1):
             raise ValueError('Nichtquadratische Videopixel werden ohne Geometrieänderung nicht unterstützt.')
         if not (0 < stream.width <= 16384 and 0 < stream.height <= 16384
                 and stream.width*stream.height <= MAX_PIXELS):
@@ -34,7 +36,7 @@ def normalize(source, destination, ffmpeg=None):
                '-threads', '2', '-copyts', '-start_at_zero', '-i', str(source),
                '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1', '-map_chapters', '-1',
                '-c:v', 'libx264', '-threads', '2', '-preset', 'fast', '-crf', '20',
-               '-vf', 'scale=in_range=auto:out_range=tv', '-color_range', 'tv',
+               '-vf', 'scale=in_range=auto:out_range=tv,setsar=1', '-color_range', 'tv',
                '-pix_fmt', 'yuv420p', '-fps_mode', 'passthrough',
                '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart',
                '-fs', str(MAX_BYTES + 1), str(destination)]

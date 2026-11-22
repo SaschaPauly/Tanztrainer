@@ -290,6 +290,25 @@ class MediaTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Nichtquadratische'):
             normalize(source, self.root/'normalized.mp4')
 
+    def test_unspecified_pixel_aspect_ratio_is_accepted(self):
+        import av
+        from analyzer.video import inspect_video
+        source = self.root/'unspecified-sar.mp4'
+        self.ffmpeg(['-i',self.source,'-vf','setsar=0','-c:v','libx264',source])
+        with av.open(str(source)) as container:
+            self.assertEqual(container.streams.video[0].sample_aspect_ratio, 0)
+        self.assertEqual(inspect_video(source)['width'], 160)
+        self.source = source
+        manifest, _ = self.analyze()
+        self.assertEqual((manifest['video']['width'], manifest['video']['height']), (160,120))
+        validate(self.output)
+        target = self.root/'exported.mp4'
+        with zipfile.ZipFile(self.output) as archive:
+            target.write_bytes(archive.read('reference/video.mp4'))
+        with av.open(str(target)) as container:
+            self.assertEqual(container.streams.video[0].sample_aspect_ratio, 1)
+        self.assertEqual([time for _, time in frames(source)], [time for _, time in frames(target)])
+
     def test_no_clobber_if_output_appears_during_export(self):
         from analyzer.validate import validate as real_validate
         def race(path):

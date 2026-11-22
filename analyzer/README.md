@@ -70,6 +70,9 @@ AAC-Neukodierung kann die technische Startmarke um einen Audioframe verschieben;
 der VFR-/Audiotest prüft 30 ms Toleranz. Ungerade H.264-Abmessungen werden mit
 FFmpeg-Fehler abgewiesen, statt stillschweigend Bildgeometrie zu ändern.
 Nichtquadratische Videopixel werden ebenfalls ausdrücklich abgewiesen.
+Eine fehlende Angabe zum Pixelseitenverhältnis (`None` oder `0/1`) ist zulässig:
+Sie wird als quadratische Pixel behandelt und im Paketvideo explizit als `1/1`
+gespeichert, ohne die Bildabmessungen zu verändern.
 
 Analysiert wird das normalisierte Paketvideo. Exportzeiten sind
 `frame.pts * frame.time_base` (Float64), niemals Frameindex/FPS oder Laufzeit.
