@@ -72,7 +72,7 @@ def validate(path, *, limits=None):
                 require(set(names) == set(SPEC['files']), 'ZIP: fehlende Dateien oder unerlaubte Pfade')
                 total = 0
                 for entry in entries:
-                    require(entry.orig_filename == entry.filename, 'ZIP-Pfad enthält NUL')
+                    require(entry.orig_filename == entry.filename, 'ZIP-Pfade: NUL oder systemabhängige Pfadnormalisierung nicht erlaubt')
                     mode = entry.external_attr >> 16
                     require(stat.S_IFMT(mode) in (0, stat.S_IFREG), f'{entry.filename}: kein regulärer Dateieintrag')
                     require(not entry.flag_bits & 1, 'Verschlüsselte ZIP-Dateien sind nicht erlaubt')

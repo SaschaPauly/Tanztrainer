@@ -69,11 +69,15 @@ node tests/zoom.test.cjs
 
 Repository in Vercel importieren, Framework-Preset **Other**, Repository-Wurzel als Root Directory, keinen Build-Befehl und `.` als Output Directory wählen. `index.html` und der gesamte Ordner `src/` müssen gemeinsam bereitgestellt werden. Für Tests eines Pull Requests ein Preview-Deployment verwenden; diese Änderung führt selbst kein Deployment oder Merge aus. Die erzeugte HTTPS-Adresse direkt in Chrome auf Android öffnen und `docs/ANDROID_TESTPLAN.md` abarbeiten. Es sind keine Anwendungs-Secrets erforderlich; eine Vercel-Verknüpfung muss über das eigene Konto erfolgen.
 
-## Showtanztrainer 2.0: Architektur- und Formatgrundlage
+## Showtanztrainer 2.0: Offline-Analyzer
 
-Phase 1 ergänzt einen unabhängigen `.choreo`-Paketvalidator und synthetische
-Testdaten. Die produktive Trainingsfunktion bleibt unverändert. Noch keine
-Windows-GUI, Videoanalyse oder .choreo-Importfunktion im Browser.
+Phase 1 (gemergter PR #4) legt `.choreo`-Format und Paketvalidator fest.
+Phase 2 ergänzt einen Windows-Python-CLI-Analyzer: lokaler Videoimport,
+MediaPipe-33-Punkte-Analyse, echte Videotimestamps, fester Zoom, Qualitätsbericht,
+CPU-Fallback und validierter Export gemäß dem unveränderten Schema 1.0.0.
+Installation und Beispielaufruf stehen in der Analyzer-Anleitung unten.
+Produktive Trainingsfunktion und GitHub Pages bleiben unverändert.
+Windows-GUI folgt in Phase 3, Browserimport in Phase 4.
 
 - [Architektur, Bestandsaufnahme und geplante Integration](docs/ARCHITECTURE_2.0.md)
 - [Verbindliches Format showtanz-choreo 1.0.0](shared/FORMAT.md)

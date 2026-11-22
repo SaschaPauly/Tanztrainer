@@ -1,6 +1,6 @@
 # Showtanztrainer – zentrale Projektdokumentation
 
-**Stand:** 10. November 2026  
+**Stand:** 22. November 2026
 **Repository:** https://github.com/SaschaPauly/Tanztrainer  
 **Anwendung:** https://saschapauly.github.io/Tanztrainer/  
 **Zweck:** Gemeinsame, versionierte Wissensgrundlage für Projektentscheidungen, ChatGPT und Codex.
@@ -8,6 +8,13 @@
 > Diese Datei fasst rekonstruierbare Projektgespräche und nachprüfbare Repository-Informationen zusammen. Sie ist kein vollständiger Export aller ChatGPT- oder Codex-Unterhaltungen. Aussagen über Gerätefunktion sind nur dann bestätigt, wenn ausdrücklich als getestet dokumentiert.
 
 ## 1. Produktziel
+
+Aktueller 2.0-Stand: Format-PR #4 ist gemergt (`e3975f5`). Phase 2 ergänzt
+als separater PR den lokalen Windows-Python-CLI-Analyzer, ohne Webdateien oder
+`showtanz-choreo 1.0.0` zu verändern. Installation/CLI und Grenzen:
+`analyzer/README.md`; Prüfstand: `docs/TEST_RESULTS.md`. Kein automatischer
+Merge. Nächste 2.0-Schritte: Windows-GUI, danach Browserimport. Personenauswahl
+und Identitätsverfolgung bleiben Folgearbeit.
 
 Browserbasierter KI-gestützter Showtanztrainer für Karnevals-/Showtanzproben. Ein lokal ausgewähltes Referenzvideo wird mit einer Kameraaufnahme des Übenden kombiniert. Die Anwendung unterstützt das Nachtrainieren, die Haltungsbewertung und eine nachträgliche Betrachtung. Die Ausgangsversion ist **Tanztrainer V12** (`original/Tanztrainer V 12.html`).
 
